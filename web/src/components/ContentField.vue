@@ -9,13 +9,10 @@
 </template>
 
 <script>
-export default {
-    
-}
 </script>
 
 <style scoped>
-div.content-field{
+div.content-field {
     margin-top: 20px;
 }
 </style>
