@@ -91,7 +91,7 @@ div.matchground {
     width: 60vw;
     height: 70vh;
     margin: 40px auto;
-    background-color: rgba(50, 50, 50, 0.5);
+    background-color: rgba(0, 0, 0, 0.5);
 }
 div.user-photo {
     text-align: center;
@@ -105,7 +105,7 @@ div.user-username {
     text-align: center;
     font-size: 24px;
     font-weight: 600;
-    color: white;
+    color: rgb(255,255,0);
     padding-top: 2vh;
 }
 div.user-select-bot {

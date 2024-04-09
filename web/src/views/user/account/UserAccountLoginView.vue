@@ -24,6 +24,7 @@ import ContentField from '../../../components/ContentField.vue'
 import { useStore } from 'vuex'
 import { ref } from 'vue'
 import router from '../../../router/index'
+import { ElMessage } from 'element-plus'
 
 export default {
     components: {
@@ -64,7 +65,9 @@ export default {
                     })
                 },
                 error() {
-                    error_message.value = "用户名或密码错误";
+                    ElMessage.error("用户名或密码错误");
+                    // error_message.value = "用户名或密码错误";
+
                 }
             })
         }
