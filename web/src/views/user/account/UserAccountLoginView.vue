@@ -4,11 +4,11 @@
             <div class="col-3">
                 <form @submit.prevent="login">
                     <div class="mb-3">
-                        <label for="username" class="form-label">用户名</label>
+                        <label for="username" class="username">用户名:</label>
                         <input v-model="username" type="text" class="form-control" id="username" placeholder="请输入用户名">
                     </div>
                     <div class="mb-3">
-                        <label for="password" class="form-label">密码</label>
+                        <label for="password" class="password">密码:</label>
                         <input v-model="password" type="password" class="form-control" id="password" placeholder="请输入密码">
                     </div>
                     <div class="error-message">{{ error_message }}</div>
@@ -25,6 +25,8 @@ import { useStore } from 'vuex'
 import { ref } from 'vue'
 import router from '../../../router/index'
 import { ElMessage } from 'element-plus'
+// import { ElNotification } from 'element-plus'
+
 
 export default {
     components: {
@@ -61,6 +63,7 @@ export default {
                     store.dispatch("getinfo", {
                         success() {
                             router.push({ name: 'home' });
+                            ElMessage.success("登录成功啦！");
                         }
                     })
                 },
@@ -88,5 +91,11 @@ button {
 }
 div.error-message {
     color: red;
+}
+label.username{
+    color:white;
+}
+label.password{
+    color: white;
 }
 </style>

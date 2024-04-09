@@ -15,4 +15,7 @@
 div.content-field {
     margin-top: 20px;
 }
+div.card{
+    background-color: rgb(0,0,0,50%);
+}
 </style>

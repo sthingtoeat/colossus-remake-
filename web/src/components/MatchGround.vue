@@ -38,6 +38,7 @@
 import { ref } from 'vue'
 import { useStore } from 'vuex';
 import $ from 'jquery';
+import { ElNotification } from 'element-plus'
 
 export default {
     setup() {
@@ -49,6 +50,10 @@ export default {
         const click_match_btn = () => {
             if (match_btn_info.value === "开始匹配") {
                 match_btn_info.value = "取消";
+                ElNotification({
+                title: '正在匹配中',
+                type: 'warning',
+                })
                 store.state.pk.socket.send(JSON.stringify({
                     event: "start-matching",
                     bot_id: select_bot.value,
@@ -58,6 +63,10 @@ export default {
                 store.state.pk.socket.send(JSON.stringify({
                     event: "stop-matching",
                 }));
+                ElNotification({
+                title: '您取消了匹配',
+                type: 'error',
+                })
             }
         }
 
