@@ -10,6 +10,7 @@ import MatchGround from '../../components/MatchGround.vue'
 import ResultBoard from '../../components/ResultBoard.vue'
 import { onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
+import { ElNotification } from 'element-plus'
 
 export default {
     components: {
@@ -48,6 +49,10 @@ export default {
                         store.commit("updateStatus", "playing");
                     }, 200);
                     store.commit("updateGame", data.game);
+                    ElNotification({
+                        title: '找到对手啦，比赛即将开始！',
+                        type: 'success',
+                    })
                 } else if (data.event === "move") {
                     console.log(data);
                     const game = store.state.pk.gameObject;

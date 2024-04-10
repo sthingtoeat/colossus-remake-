@@ -66,9 +66,23 @@
                                     <td>{{ bot.title }}</td>
                                     <td>{{ bot.createtime }}</td>
                                     <td>
-                                        <button type="button" class="btn btn-secondary" style="margin-right: 10px;" data-bs-toggle="modal" :data-bs-target="'#update-bot-modal-' + bot.id">修改</button>
-                                        <button type="button" class="btn btn-danger" @click="remove_bot(bot)">删除</button>
-
+                                        <!-- <button type="button" class="btn btn-secondary" style="margin-right: 10px;" data-bs-toggle="modal" :data-bs-target="'#update-bot-modal-' + bot.id">修改</button> -->
+                                        <el-button type="primary" data-bs-toggle="modal" :data-bs-target="'#update-bot-modal-' + bot.id">修改</el-button>
+                                        <!-- <button type="button" class="btn btn-danger" @click="remove_bot(bot)">删除</button> -->
+                                        <el-popconfirm
+                                            width="220"
+                                            confirm-button-text="删了它！"
+                                            cancel-button-text="点错了~"
+                                            :icon="InfoFilled"
+                                            icon-color="#626AEF"
+                                            title="真的要删除这个Bot吗？会消失很久的哦，真的很久！"
+                                            @confirm="remove_bot(bot)"
+                                            @cancel="null"
+                                        >
+                                            <template #reference>
+                                                <el-button type="danger">删除</el-button>
+                                            </template>
+                                        </el-popconfirm>
                                         <div class="modal fade" :id="'update-bot-modal-' + bot.id" tabindex="-1">
                                             <div class="modal-dialog modal-xl">
                                                 <div class="modal-content">
@@ -126,6 +140,8 @@ import { Modal } from 'bootstrap/dist/js/bootstrap'
 import { VAceEditor } from 'vue3-ace-editor';
 import ace from 'ace-builds';
 
+import { ElNotification } from 'element-plus'
+
 export default {
     components: {
         VAceEditor
@@ -181,8 +197,16 @@ export default {
                         botadd.content = "";
                         Modal.getInstance("#add-bot-btn").hide();
                         refresh_bots();
+                        ElNotification({
+                        title: 'Bot添加成功！',
+                        type: 'success',
+                        })
                     } else {
                         botadd.error_message = resp.error_message;
+                        ElNotification({
+                        title: 'Bot添加失败！',
+                        type: 'error',
+                        })
                     }
                 }
             })
@@ -206,8 +230,16 @@ export default {
                     if (resp.error_message === "success") {
                         Modal.getInstance('#update-bot-modal-' + bot.id).hide();
                         refresh_bots();
+                        ElNotification({
+                        title: 'Bot修改成功！',
+                        type: 'success',
+                        })
                     } else {
                         botadd.error_message = resp.error_message;
+                        ElNotification({
+                        title: 'Bot修改失败！',
+                        type: 'error',
+                        })
                     }
                 }
             })
