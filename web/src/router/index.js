@@ -7,6 +7,7 @@ import UserBotIndexView from '../views/user/bot/UserBotIndexView'
 import NotFound from '../views/error/NotFound'
 import UserAccountLoginView from '../views/user/account/UserAccountLoginView'
 import UserAccountRegisterView from '../views/user/account/UserAccountRegisterView'
+import UserChatRoomView from '../views/user/chatroom/UserChatRoomView'
 import store from '../store/index'
 
 const routes = [
@@ -80,6 +81,14 @@ const routes = [
     component: NotFound,
     meta: {
       requestAuth: false,
+    }
+  },
+  {
+    path:"/user/chatroom",
+    name:"chatroom",
+    component:UserChatRoomView,
+    meta:{
+      requestAuth:true,
     }
   },
   {
