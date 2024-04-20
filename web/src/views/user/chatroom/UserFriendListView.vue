@@ -36,22 +36,11 @@
 
                 </div>
                 <div>
-                  <el-input :span="18" v-model="content" placeholder="说点什么吧~" />
-                  <el-button @click="sendMessage(content)" style="float:right;margin-top:5px" type="primary">发送</el-button>
+                  <el-input :span="18" v-model="input" placeholder="说点什么吧~" />
+                  <el-button style="float:right;margin-top:5px" type="primary">发送</el-button>
                 </div>
               </el-col>
-              <el-col :span="6">
-                <div style="height:700px;background-color:white">
-                  <el-scrollbar height="400px">
-                    <div>
-                      好友列表
-                    </div>
-                    <div>
-                      好友列表
-                    </div>
-                  </el-scrollbar>
-                </div>
-              </el-col>
+              
             </el-row>
           </el-main>
         </el-container>
@@ -61,41 +50,11 @@
 </template>
 <script>
 import ContentField from "@/components/ContentField.vue";
-import { useStore } from "vuex";
-import { ref } from "vue"
-import $ from "jquery";
 export default {
   components: {
     ContentField,
   },
-  setup() {
-
-    const store = useStore();
-    const user_id = store.state.user.id;
-    let content = ref("");
-    
-    const sendMessage = (content) =>{
-      $.ajax({
-          url:"http://127.0.0.1:3003/message/send1",
-          type:"post",
-          data:{
-            user_id:user_id,
-            user_content:content,
-          },
-          success(resp){
-            console.log(resp);
-          },
-          error(resp){
-            console.log(resp);
-          }
-      })
-    }
-
-    return {
-      content,
-      sendMessage,
-    }
-  },
+  setup() {},
 };
 </script>
 

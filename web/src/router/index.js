@@ -8,6 +8,7 @@ import NotFound from '../views/error/NotFound'
 import UserAccountLoginView from '../views/user/account/UserAccountLoginView'
 import UserAccountRegisterView from '../views/user/account/UserAccountRegisterView'
 import UserChatRoomView from '../views/user/chatroom/UserChatRoomView'
+import UserFriendListView from '../views/user/chatroom/UserFriendListView'
 import store from '../store/index'
 
 const routes = [
@@ -91,6 +92,15 @@ const routes = [
       requestAuth:true,
     }
   },
+  {
+    path:"/user/friendlist",
+    name:"friendlist",
+    component:UserFriendListView,
+    meta:{
+      requestAuth:true,
+    }
+  },
+  
   {
     path: "/:catchAll(.*)",
     redirect: "/404/"
