@@ -33,11 +33,13 @@
             <el-row :gutter="20">
               <el-col :span="18">
                 <div style="height:630px;background-color:yellow">
-
+                  <ul  class="infinite-list" style="overflow: auto">
+                    <li v-for="i in content_list" :key="i" class="infinite-list-item">{{ i }}</li>
+                  </ul>
                 </div>
                 <div>
-                  <el-input :span="18" v-model="content" placeholder="说点什么吧~" />
-                  <el-button @click="sendMessage(content)" style="float:right;margin-top:5px" type="primary">发送</el-button>
+                  <el-input :span="18" v-model="input_content" placeholder="说点什么吧~" />
+                  <el-button @click="sendMessage(input_content)" style="float:right;margin-top:5px" type="primary">发送</el-button>
                 </div>
               </el-col>
               <el-col :span="6">
@@ -62,7 +64,7 @@
 <script>
 import ContentField from "@/components/ContentField.vue";
 import { useStore } from "vuex";
-import { ref } from "vue"
+import { ref ,reactive } from "vue"
 import $ from "jquery";
 export default {
   components: {
@@ -72,28 +74,71 @@ export default {
 
     const store = useStore();
     const user_id = store.state.user.id;
-    let content = ref("");
+
+    let input_content = ref("");
+    let content_list = reactive(
+      [
+        {
+          user_id:"",
+          user_content:"",
+          time:"",
+        },
+      ],
+    ) 
     
-    const sendMessage = (content) =>{
+    const sendMessage = (message) =>{
       $.ajax({
           url:"http://127.0.0.1:3003/message/send1",
           type:"post",
           data:{
             user_id:user_id,
-            user_content:content,
+            user_content:message,
+            time:getDate(),
           },
           success(resp){
+            addContent(message);
             console.log(resp);
           },
           error(resp){
             console.log(resp);
           }
       })
+      input_content.value=""; //清除输入框中的内容
+    }
+
+    //前台提交信息，添加到content_list数组
+    const addContent = (message) =>{
+      content_list.push({
+        user_id:user_id,
+        user_content:message,
+        time:getDate(),
+      })
+    }
+
+    //处理来自后端的消息并添加到content_list数组
+    const updateContent = (message) => {
+      content_list.push({
+        user_id:message.user_id,
+        user_content:message.user_content,
+        time:message.time,
+      })
+    }
+
+    //获取当前时间
+    const getDate = () => {
+      const date = new Date();
+      const minute = date.getMinutes()/10 === 0 ? "0" + date.getMinutes() : date.getMinutes();
+      const now = date.getFullYear() + "年" + (date.getMonth() + 1)+ "月" + date.getDate() + "日" + date.getHours() + ":" + minute;
+      return now;
     }
 
     return {
-      content,
+      input_content,
+      content_list,
       sendMessage,
+      addContent,
+      updateContent,
+      getDate,
     }
   },
 };

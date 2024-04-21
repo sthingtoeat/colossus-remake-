@@ -18,7 +18,8 @@ public class MessageSendController {
     public String SendMessage(@RequestParam Map<String, String> map){
         String userId = map.get("user_id");
         String content = map.get("user_content");
-        rabbitTemplate.convertAndSend("","queue1",content);
+        String time = map.get("time");
+        rabbitTemplate.convertAndSend("chatroom","","用户：" + userId + "在" + time+"时刻发表了：" + content);
         return "success";
     }
 
