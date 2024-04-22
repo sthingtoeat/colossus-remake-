@@ -33,8 +33,19 @@
             <el-row :gutter="20">
               <el-col :span="18">
                 <div style="height:630px;background-color:yellow">
-                  <ul  class="infinite-list" style="overflow: auto">
-                    <li v-for="i in content_list" :key="i" class="infinite-list-item">{{ i }}</li>
+                  <ul class="infinite-list" style="overflow: auto">
+                    <li v-for="item in content_list" :key="item" style="list-style-type:none" class="infinite-list-item">
+                      <ChatBubble>
+                        <span class="chat-time">{{item.time}}</span>
+                        <div class="chat-item" >
+                          <img class="chat-avatar" :src="item.user_photo" alt="">
+                          <el-col style="display:inline-block;" class="chat-item-box">
+                            <div class="user-info">{{item.user_id}}</div>
+                            <div class="chat-content">{{item.user_content}}</div>
+                          </el-col>
+                        </div>
+                      </ChatBubble>
+                    </li>
                   </ul>
                 </div>
                 <div>
@@ -63,12 +74,14 @@
 </template>
 <script>
 import ContentField from "@/components/ContentField.vue";
+import ChatBubble from "@/components/ChatBubble.vue";
 import { useStore } from "vuex";
 import { ref ,reactive, onMounted, onUnmounted } from "vue"
 import $ from "jquery";
 export default {
   components: {
     ContentField,
+    ChatBubble,
   },
   setup() {
 
@@ -79,11 +92,12 @@ export default {
     let input_content = ref("");
     let content_list = reactive(
       [
-        {
-          user_id:"",
-          user_content:"",
-          time:"",
-        },
+        // {
+        //   user_id:"",
+        //   user_content:"",
+        //   user_photo:null,
+        //   time:"",
+        // },
       ],
     ) 
     
@@ -113,6 +127,7 @@ export default {
       content_list.push({
         user_id:user_id,
         user_content:message,
+        user_photo:"https://cdn.acwing.com/media/user/profile/photo/150655_lg_8d32256772.jpg",
         time:getDate(),
       })
     }
@@ -122,6 +137,7 @@ export default {
       content_list.push({
         user_id:message.user_id,
         user_content:message.user_content,
+        user_photo:"https://cdn.acwing.com/media/user/profile/photo/150655_lg_8d32256772.jpg",
         time:message.time,
       })
     }
@@ -178,4 +194,16 @@ export default {
 </script>
 
 <style scoped>
+.chat-avatar{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  margin-top:-25px;
+}
+.user-info{
+  color:red;
+}
+.chat-content{
+  background-color:grey;
+}
 </style>
