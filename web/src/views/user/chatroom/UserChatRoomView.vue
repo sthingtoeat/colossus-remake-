@@ -64,7 +64,7 @@
 <script>
 import ContentField from "@/components/ContentField.vue";
 import { useStore } from "vuex";
-import { ref ,reactive } from "vue"
+import { ref ,reactive, onMounted, onUnmounted } from "vue"
 import $ from "jquery";
 export default {
   components: {
@@ -74,6 +74,7 @@ export default {
 
     const store = useStore();
     const user_id = store.state.user.id;
+    const socketUrl = `ws://127.0.0.1:3003/websocket/${user_id}`;
 
     let input_content = ref("");
     let content_list = reactive(
@@ -86,6 +87,7 @@ export default {
       ],
     ) 
     
+    //发送消息给后端
     const sendMessage = (message) =>{
       $.ajax({
           url:"http://127.0.0.1:3003/message/send1",
@@ -131,6 +133,37 @@ export default {
       const now = date.getFullYear() + "年" + (date.getMonth() + 1)+ "月" + date.getDate() + "日" + date.getHours() + ":" + minute;
       return now;
     }
+
+    let socket = null;
+    //挂载时(进入聊天室)自动调用这个函数，同时持续到取消挂载为止
+    onMounted(() => {
+      socket = new WebSocket(socketUrl)
+
+      socket.onopen = () => {
+        console.log(user_id +"你已成功连接");
+      }
+ 
+      socket.onmessage = (msg) => {
+        const message = JSON.parse(msg.data);
+        
+        updateContent(message)
+        console.log("收到了来自后端的消息"+ message);
+      }
+
+      socket.onerror = () =>{
+        
+      }
+
+      socket.onclose = () => {
+        console.log(user_id + "已断开连接");
+      }
+
+    });
+    
+    //取消挂载(退出浏览器)时自动调用这个函数
+    onUnmounted(() => {
+      socket.close();
+    });
 
     return {
       input_content,

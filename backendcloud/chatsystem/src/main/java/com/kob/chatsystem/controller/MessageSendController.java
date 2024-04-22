@@ -16,11 +16,8 @@ public class MessageSendController {
 
     @RequestMapping("/message/send1")
     public String SendMessage(@RequestParam Map<String, String> map){
-        String userId = map.get("user_id");
-        String content = map.get("user_content");
-        String time = map.get("time");
-        rabbitTemplate.convertAndSend("chatroom","","用户：" + userId + "在" + time+"时刻发表了：" + content);
-        return "success";
+        rabbitTemplate.convertAndSend("chatroom","chatroom", map);
+        return "信息发送成功";
     }
 
     @RequestMapping("/message/send_all")
