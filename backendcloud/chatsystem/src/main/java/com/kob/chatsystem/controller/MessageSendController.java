@@ -14,7 +14,7 @@ public class MessageSendController {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    @RequestMapping("/message/send1")
+    @RequestMapping("/message/send")
     public String SendMessage(@RequestParam Map<String, String> map){
         rabbitTemplate.convertAndSend("chatroom","chatroom", map);
         return "信息发送成功";

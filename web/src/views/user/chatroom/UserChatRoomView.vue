@@ -56,11 +56,10 @@
               <el-col :span="6">
                 <div style="height:700px;background-color:white">
                   <el-scrollbar height="400px">
-                    <div>
-                      好友列表
-                    </div>
-                    <div>
-                      好友列表
+                    <span>当前在线人数:{{member_num}}</span>
+                    <div v-for="item in member_list" :key="item">
+                      <img :src="item.user_photo" alt="" style="width:30px;height:30px;border-radius:50%">
+                      {{item.user_name}}
                     </div>
                   </el-scrollbar>
                 </div>
@@ -77,7 +76,9 @@ import ContentField from "@/components/ContentField.vue";
 import ChatBubble from "@/components/ChatBubble.vue";
 import { useStore } from "vuex";
 import { ref ,reactive, onMounted, onUnmounted } from "vue"
+import { ElNotification } from "element-plus"
 import $ from "jquery";
+
 export default {
   components: {
     ContentField,
@@ -100,11 +101,23 @@ export default {
         // },
       ],
     ) 
+    let member_num = ref("0");
+    let member_list = reactive(
+      [
+        //  {
+        //   member_size:"",
+        //   user_photo:"",
+        //   user_name:"",
+        //   is_member_info:"",
+        //   member_id:""
+        //  }
+      ]
+    )
     
-    //发送消息给后端
+    //发送聊天消息给后端
     const sendMessage = (message) =>{
       $.ajax({
-          url:"http://127.0.0.1:3003/message/send1",
+          url:"http://127.0.0.1:3003/message/send",
           type:"post",
           data:{
             user_id:user_id,
@@ -142,6 +155,22 @@ export default {
       })
     }
 
+    //移除在线成员
+    const removeMember = (id) =>{
+      for(let i = 0 ; i < member_list.length ; i ++){
+        if(member_list[i].member_id == id){
+          member_list.splice(i,1);
+          //
+          member_num.value --;
+        }
+      }
+    }
+
+    //添加在线成员
+    const addMember = () =>{
+      
+    }
+
     //获取当前时间
     const getDate = () => {
       const date = new Date();
@@ -156,14 +185,32 @@ export default {
       socket = new WebSocket(socketUrl)
 
       socket.onopen = () => {
+        ElNotification({
+          title: '你成功连接上了聊天室的网络！开始聊天吧！',
+          type: 'success',
+        })
         console.log(user_id +"你已成功连接");
       }
  
+      //从后台接收到的信息可以有聊天消息和成员信息，需要进行区分
       socket.onmessage = (msg) => {
+        //首先将接收的信息解析为Js对象，因为发过来的是JSON字符串
         const message = JSON.parse(msg.data);
-        
-        updateContent(message)
-        console.log("收到了来自后端的消息"+ message);
+        if(message.is_offline_info){
+          removeMember(message.offline_id);
+          console.log("当前下线的用户id:" + message.offline_id);
+          return ;
+        }
+        //区分成员信息还是聊天内容
+        if(message.is_member_info){
+          //传来成员列表的参数有member_size、user_photo、user_name、is_member_info、member_id
+          member_list.push(message);
+          member_num.value = message.member_size;
+          console.log("收到成员列表信息："+ message);
+        }else{
+          updateContent(message)
+          console.log("收到了来自后端的消息"+ message);
+        }
       }
 
       socket.onerror = () =>{
@@ -171,6 +218,11 @@ export default {
       }
 
       socket.onclose = () => {
+        ElNotification({
+          title: '注意哦，你断开了连接！收不到消息了哦！',
+          type: 'warning',
+        })
+
         console.log(user_id + "已断开连接");
       }
 
@@ -184,9 +236,13 @@ export default {
     return {
       input_content,
       content_list,
+      member_list,
+      member_num,
       sendMessage,
       addContent,
       updateContent,
+      removeMember,
+      addMember,
       getDate,
     }
   },
