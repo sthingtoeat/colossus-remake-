@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-@ServerEndpoint("/websocket/{id}")
+@ServerEndpoint("/websocket/chatroom/{id}")
 public class WebSocketServer {
     private static Set<WebSocketServer> webSocketServerSet = new HashSet<>();
 
@@ -134,14 +134,23 @@ public class WebSocketServer {
     public void receive(Map<String , String> msg , @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag, Channel channel) throws IOException, EncodeException {
         System.out.println("Ws服务器接收到：" + msg);
         channel.basicAck(deliveryTag , true);
+        //获取消息传递过来的用户id（谁发的）
+        Integer user_id = Integer.parseInt(msg.get("user_id"));
+        String user_name = userInfoGetService.GetUsernameById(user_id);
+        String user_photo = userInfoGetService.GetPhotoById(user_id);
+        //把用户名称和头像装进msg中
+        msg.put("user_name" , user_name);
+        msg.put("user_photo" , user_photo);
 
-        Integer userId = Integer.parseInt(msg.get("user_id"));
         for(WebSocketServer item : webSocketServerSet){
-            if(userId == item.userId) {
-                continue;
-            }
+
             item.sendMessage(msg);
             System.out.println("聊天信息已成功发送给用户" + item.userId);
+            //多发一条影响不大，反正在前端会被覆盖掉，才不是因为下面的代码有会给自己发的bug呢！
+//            if(!item.userId.equals(userId) ) {
+//                item.sendMessage(msg);
+//                System.out.println("聊天信息已成功发送给用户" + item.userId);
+//            }
         }
     }
 }

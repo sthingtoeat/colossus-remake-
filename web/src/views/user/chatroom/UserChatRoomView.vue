@@ -3,59 +3,59 @@
     <div class="common-layout">
       <el-container>
         <el-aside class="aside" width="300px" style="background-color: rgb(125, 125, 0)">
-           <el-row><!--这里是总侧边栏的载体，包括了左边的两列内容-->
-            <el-col class="user-info-box" :span="6" style="height:800px;background-color:rgb(127,127,127)"><!--这里是聊天室最左边那一小列的载体，下面的才是具体的内容 -->
-              <el-avatar style="margin-left:15%" :size="54" :src="circleUrl"/>
+           <el-row><!--<--这里是总侧边栏的载体，包括了左边的两列内容-->
+            <!--这里是聊天室最左边那一小列的载体，下面的才是具体的内容 -->
+            <el-col class="user-info-box" :span="6" style="height:800px;background-color:rgb(127,127,127)">
+              <el-avatar style="margin-left:15%" :size="54" :src="user_photo"/>
               <el-avatar style="margin-left:15%;margin-top:20%" :size="54" :src="circleUrl"/>
               <el-avatar style="margin-left:15%" :size="54" :src="circleUrl"/>
               <el-avatar style="margin-left:15%" :size="54" :src="circleUrl"/>
             </el-col>
             <el-col :span="18"><!--这里是侧边栏稍微宽一点的一列-->
+              <div >  
                 <el-input v-model="input1" style="width: full;margin-top:3%" size="large" placeholder="搜索好友" :prefix-icon="Search"/>
-                <el-menu style="margin-top:5%" default-active="2" class="el-menu-vertical-demo">
-                  <el-menu-item index="1">
-                    <el-icon><icon-menu /></el-icon>
-                    <span>Navigator one</span>
-                  </el-menu-item>
-                    <el-menu-item index="2">
-                    <el-icon><icon-menu /></el-icon>
-                    <span>Navigator Two</span>
-                  </el-menu-item>
-                </el-menu>
+                <el-scrollbar max-height="400px">
+                  
+                </el-scrollbar>
+              </div> 
             </el-col>
           </el-row>
         </el-aside>
         <el-container>
           <el-header>
-            <div style="height:60px;width:100%;background-color:rgb(128, 128, 128)"></div>
+            <div style="height:60px;width:100%;background-color:rgb(128, 128, 128)">
+              <label style="float:center">
+                米奇妙妙屋
+              </label>
+            </div>
           </el-header>
           <el-main>
             <el-row :gutter="20">
               <el-col :span="18">
-                <div style="height:630px;background-color:yellow">
-                  <ul class="infinite-list" style="overflow: auto">
-                    <li v-for="item in content_list" :key="item" style="list-style-type:none" class="infinite-list-item">
-                      <ChatBubble>
-                        <span class="chat-time">{{item.time}}</span>
-                        <div class="chat-item" >
-                          <img class="chat-avatar" :src="item.user_photo" alt="">
-                          <el-col style="display:inline-block;" class="chat-item-box">
-                            <div class="user-info">{{item.user_id}}</div>
-                            <div class="chat-content">{{item.user_content}}</div>
-                          </el-col>
-                        </div>
-                      </ChatBubble>
-                    </li>
-                  </ul>
+                <div style="height:630px">
+                  <el-scrollbar max-height="630px" >
+                    <ChatBubbleListBox style="clear:both" v-for="item in content_list" :key="item">
+                      <div :class="user_id != item.user_id ? 'chat-time':'chat-time-right'">
+                        <span>{{item.time}}</span>
+                      </div>
+                      <div :class="user_id != item.user_id ? 'chat-item':'chat-item-right'">
+                        <img :class="user_id != item.user_id ? 'chat-avatar':'chat-avatar-right'" :src="item.user_photo" alt="">
+                        <el-col style="display:inline-block;" class="chat-item-box">
+                          <div :class="user_id != item.user_id ? 'user-info':'user-info-right'">{{item.user_name}}</div>
+                          <div :class="user_id != item.user_id ? 'chat-content':'chat-content-right'">{{item.user_content}}</div>
+                        </el-col>
+                      </div>
+                    </ChatBubbleListBox>
+                  </el-scrollbar>
                 </div>
                 <div>
-                  <el-input :span="18" v-model="input_content" placeholder="说点什么吧~" />
+                  <el-input :span="18" v-model="input_content" @keydown.enter="sendMessage(input_content)"  placeholder="说点什么吧~" />
                   <el-button @click="sendMessage(input_content)" style="float:right;margin-top:5px" type="primary">发送</el-button>
                 </div>
               </el-col>
               <el-col :span="6">
                 <div style="height:700px;background-color:white">
-                  <el-scrollbar height="400px">
+                  <el-scrollbar height="700px">
                     <span>当前在线人数:{{member_num}}</span>
                     <div v-for="item in member_list" :key="item">
                       <img :src="item.user_photo" alt="" style="width:30px;height:30px;border-radius:50%">
@@ -73,31 +73,34 @@
 </template>
 <script>
 import ContentField from "@/components/ContentField.vue";
-import ChatBubble from "@/components/ChatBubble.vue";
+import ChatBubbleListBox from "@/components/ChatBubbleListBox.vue";
 import { useStore } from "vuex";
-import { ref ,reactive, onMounted, onUnmounted } from "vue"
+import { ref ,reactive, onMounted, onUnmounted} from "vue"
 import { ElNotification } from "element-plus"
 import $ from "jquery";
 
 export default {
   components: {
     ContentField,
-    ChatBubble,
+    ChatBubbleListBox,
   },
   setup() {
 
     const store = useStore();
     const user_id = store.state.user.id;
-    const socketUrl = `ws://127.0.0.1:3003/websocket/${user_id}`;
+    const user_name = store.state.user.username;
+    const user_photo = store.state.user.photo;
+    const socketUrl = `ws://127.0.0.1:3003/websocket/chatroom/${user_id}`;
 
     let input_content = ref("");
     let content_list = reactive(
       [
         // {
         //   user_id:"",
-        //   user_content:"",
+        //   user_name:"test",
+        //   user_content:"123",
         //   user_photo:null,
-        //   time:"",
+        //   time:"2024年4月25日16:49",
         // },
       ],
     ) 
@@ -116,6 +119,13 @@ export default {
     
     //发送聊天消息给后端
     const sendMessage = (message) =>{
+      if(message == ""){
+        ElNotification({
+          title: '发送消息不可以为空哦~',
+          type: 'error',
+        })
+        return ;
+      }
       $.ajax({
           url:"http://127.0.0.1:3003/message/send",
           type:"post",
@@ -125,7 +135,7 @@ export default {
             time:getDate(),
           },
           success(resp){
-            addContent(message);
+            // addContent(message);
             console.log(resp);
           },
           error(resp){
@@ -135,12 +145,14 @@ export default {
       input_content.value=""; //清除输入框中的内容
     }
 
-    //前台提交信息，添加到content_list数组
+    //暂不使用它
+    //前台提交信息，添加到content_list数组(给自己看)
     const addContent = (message) =>{
       content_list.push({
         user_id:user_id,
+        user_name:user_name,
         user_content:message,
-        user_photo:"https://cdn.acwing.com/media/user/profile/photo/150655_lg_8d32256772.jpg",
+        user_photo:user_photo,
         time:getDate(),
       })
     }
@@ -149,18 +161,19 @@ export default {
     const updateContent = (message) => {
       content_list.push({
         user_id:message.user_id,
+        user_name:message.user_name,
         user_content:message.user_content,
-        user_photo:"https://cdn.acwing.com/media/user/profile/photo/150655_lg_8d32256772.jpg",
+        user_photo:message.user_photo,
         time:message.time,
       })
     }
-
+    
     //移除在线成员
     const removeMember = (id) =>{
       for(let i = 0 ; i < member_list.length ; i ++){
         if(member_list[i].member_id == id){
           member_list.splice(i,1);
-          //
+          //成员数-1
           member_num.value --;
         }
       }
@@ -234,13 +247,15 @@ export default {
     });
 
     return {
+      user_id,
+      user_photo,
       input_content,
       content_list,
       member_list,
       member_num,
       sendMessage,
-      addContent,
       updateContent,
+      addContent,
       removeMember,
       addMember,
       getDate,
@@ -250,16 +265,61 @@ export default {
 </script>
 
 <style scoped>
+.chat-time{
+  font-size: 10px;
+  color:white;
+  text-align: center;
+}
 .chat-avatar{
   width:40px;
   height:40px;
   border-radius:50%;
   margin-top:-25px;
 }
+.chat-item-box{
+  max-width: 600px;
+}
 .user-info{
-  color:red;
+  color:rgb(239,241,2);
+  font-size:15px;
 }
 .chat-content{
-  background-color:grey;
+  color:black;
+  max-width: 80%;
+  padding-left:5px;
+  padding-right:5px;
+  background-color:white;
+  border-radius:7px;
+}
+.chat-time-right{
+  font-size: 10px;
+  color:white;
+  text-align: center;
+}
+.chat-item-right{
+  float:right;
+}
+.chat-avatar-right{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  float: right;
+}
+.chat-item-box-right{
+  max-width: 600px;
+}
+.user-info-right{
+  color:rgb(239,241,2);
+  font-size:15px;
+  text-align: right;
+}
+.chat-content-right{
+  color:black;
+  max-width: 80%;
+  padding-left:5px;
+  padding-right:5px;
+  background-color:white;
+  border-radius:7px;
+  text-align: right;
 }
 </style>
