@@ -63,6 +63,10 @@ public class WebSocketServer {
 
     @OnError
     public void onError(Session session, Throwable error) {
+        //报错了也得宣布下线
+        sendOfflineMemberIdWhenClose();
+        webSocketServerSet.remove(this);
+        //打印错误报告
         error.printStackTrace();
     }
 
