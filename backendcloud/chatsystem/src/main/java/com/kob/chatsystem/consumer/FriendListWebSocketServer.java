@@ -16,41 +16,42 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-@ServerEndpoint("/websocket/chatroom/{id}")
-public class WebSocketServer {
-    private static Set<WebSocketServer> webSocketServerSet = new HashSet<>();
-
+@ServerEndpoint("/websocket/friendList/{id}")
+public class FriendListWebSocketServer {
+    //使用Integer类型的id标记每个链接
+    public static ConcurrentHashMap<Integer,FriendListWebSocketServer> friendListWebSocketServerMap = new ConcurrentHashMap<>();
+    public static Set<FriendListWebSocketServer> friendListWebSocketServerSet = new HashSet<>();
     private static UserInfoGetService userInfoGetService;
     private Integer userId = null;
+
     private Session session = null;
+
     @Autowired
     private void setUserInfoGetService(UserInfoGetService userInfoGetService) {
-        WebSocketServer.userInfoGetService = userInfoGetService;
+        FriendListWebSocketServer.userInfoGetService = userInfoGetService;
     }
-
     @OnOpen
     public void onOpen(Session session ,@PathParam("id") String id) {
         // 建立连接
         this.session = session;
-        webSocketServerSet.add(this);
         this.userId = Integer.parseInt(id);
-        System.out.println("用户:"+ this.userId + "已连接成功,当前在线人数：" + webSocketServerSet.size());
-        //给所有在线成员发送更新后的成员列表
+        //添加链接
+        addSocket();
+        System.out.println("用户:"+ this.userId + "已连接成功,当前在线人数：" + friendListWebSocketServerMap.size());
         sendMemberInfoWhenOpen();
     }
 
     @OnClose
     public void onClose() {
         // 关闭链接
+        removeSocket();
         sendOfflineMemberIdWhenClose();
-        webSocketServerSet.remove(this);
         System.out.println("用户:"+ userId + "已离线");
+
     }
 
     @OnMessage
@@ -60,12 +61,21 @@ public class WebSocketServer {
     }
 
     @OnError
-    public void onError(Session session, Throwable error) {
+    public void onError(Throwable error) {
         //报错了也得宣布下线
-        sendOfflineMemberIdWhenClose();
-        webSocketServerSet.remove(this);
+        removeSocket();
         //打印错误报告
         error.printStackTrace();
+    }
+    //将自身移除,离线
+    public void removeSocket(){
+        friendListWebSocketServerMap.remove(userId,this);
+        friendListWebSocketServerSet.remove(this);
+    }
+    //添加自身，上线
+    public void addSocket(){
+        friendListWebSocketServerMap.put(userId,this);
+        friendListWebSocketServerSet.add(this);
     }
 
     //发送信息给前端的函数
@@ -81,7 +91,7 @@ public class WebSocketServer {
 
     //发送成员列表，仅用户进入聊天室(打开链接时)时给自己发送,此处代码复用度有点差，需要进行优化
     public void sendMemberInfoWhenOpen(){
-        Integer size = webSocketServerSet.size();                           //在线的人数
+        Integer size = friendListWebSocketServerMap.size();                           //在线的人数
         String thisPhoto = userInfoGetService.GetPhotoById(userId);         //此链接的用户的头像
         String thisUsername = userInfoGetService.GetUsernameById(userId);   //此链接的用户的名称
 
@@ -94,7 +104,7 @@ public class WebSocketServer {
 
         int x = 1;                                                          //临时变量，记录发送的条数
         //每循环一次发送一条成员信息，将发送n条，n=在线人数
-        for(WebSocketServer item : webSocketServerSet){
+        for(FriendListWebSocketServer item : friendListWebSocketServerSet){
             String photo = userInfoGetService.GetPhotoById(item.userId);    //每个链接的用户头像
             String username = userInfoGetService.GetUsernameById(item.userId);//每个链接的用户名称
 
@@ -115,10 +125,8 @@ public class WebSocketServer {
             }
         }
     }
-
-    //自己需要离线，所以向其他(除了自己以外)在线成员发送自己的用户的ID
     public void sendOfflineMemberIdWhenClose(){
-        for(WebSocketServer item: webSocketServerSet){
+        for(FriendListWebSocketServer item: friendListWebSocketServerSet){
             HashMap<String ,String> map = new HashMap<>();
             map.put("is_offline_info","true");
             map.put("offline_id" , userId + "");
@@ -129,30 +137,29 @@ public class WebSocketServer {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "chatroom"),
-            exchange = @Exchange(value = "chatroom" , type = "direct"),
-            key = "chatroom"
+            value = @Queue(value = "friendList"),
+            exchange = @Exchange(value = "friendList" , type = "direct"),
+            key = "friendList"
     ))
-    public void receive(Map<String , String> msg , @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag, Channel channel) throws IOException, EncodeException {
+    public void receive(Map<String , String> msg , @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag, Channel channel) throws IOException {
         System.out.println("Ws服务器接收到：" + msg);
         channel.basicAck(deliveryTag , true);
-        //获取消息传递过来的用户id（谁发的）
+        //获取消息中的朋友id
+        String friendId = msg.get("friend_id");
+
         Integer user_id = Integer.parseInt(msg.get("user_id"));
         String user_name = userInfoGetService.GetUsernameById(user_id);
         String user_photo = userInfoGetService.GetPhotoById(user_id);
+
         //把用户名称和头像装进msg中
         msg.put("user_name" , user_name);
         msg.put("user_photo" , user_photo);
 
-        for(WebSocketServer item : webSocketServerSet){
-
-            item.sendMessage(msg);
-            System.out.println("聊天信息已成功发送给用户" + item.userId);
-            //多发一条影响不大，反正在前端会被覆盖掉，才不是因为下面的代码有会给自己发的bug呢！
-//            if(!item.userId.equals(userId) ) {
-//                item.sendMessage(msg);
-//                System.out.println("聊天信息已成功发送给用户" + item.userId);
-//            }
+        //给朋友发消息
+        if(!friendId.isEmpty()){
+            friendListWebSocketServerMap.get(Integer.parseInt(friendId)).sendMessage(msg);
+            return;
         }
+        System.out.println("发送消息失败");
     }
 }

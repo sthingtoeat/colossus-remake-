@@ -5,5 +5,5 @@ import com.kob.chatsystem.pojo.User;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface UseInfoGetMapper extends BaseMapper<User> {
+public interface UserInfoGetMapper extends BaseMapper<User> {
 }
