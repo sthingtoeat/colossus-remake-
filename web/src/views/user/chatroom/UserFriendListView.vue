@@ -132,6 +132,15 @@ export default {
         //  }
       ]
     )
+    //一个存储聊天内容二维数组,且可以用id进行映射
+    let two_dimension_content_list = reactive(
+      [
+        {
+          id:0,
+          content:[],
+        }
+      ]
+    )
 
     //存储给哪个朋友发消息的朋友id
     let toWhichFriend = ref("");
@@ -190,10 +199,17 @@ export default {
       })
     }
 
-    //选择朋友，修改toWhichFriend这个变量
+    //选择朋友，修改toWhichFriend这个变量,同时修改content_list中的内容
     const chooseFriend = (id) =>{
       toWhichFriend.value = id;
+
+      console.log("id:"+two_dimension_content_list.id+"内容为："+two_dimension_content_list.content);
     }
+    //把消息放进二维数组里
+    const push_content_to_two_dimension = () =>{
+      
+    }
+
     //临时启用！！！
     const addContent = (message) =>{
       content_list.push({
@@ -203,6 +219,7 @@ export default {
         user_photo:user_photo,
         time:getDate(),
       })
+      push_content_to_two_dimension();
     }
 
     //处理来自后端的消息并添加到content_list数组
@@ -224,6 +241,8 @@ export default {
         user_photo:message.user_photo,
         time:time.value,
       })
+
+      push_content_to_two_dimension();
     }
     
     //移除在线成员
@@ -313,10 +332,6 @@ export default {
       socket.onmessage = (msg) => {
         //首先将接收的信息解析为Js对象，因为发过来的是JSON字符串
         const message = JSON.parse(msg.data);
-        ElNotification({
-          title:"来自："+message.user_name+"的消息："+message.user_content,
-          type: 'success',
-        })
         if(message.is_offline_info){
           removeMember(message.offline_id);
           console.log("当前下线的用户id:" + message.offline_id);
@@ -329,6 +344,10 @@ export default {
           member_num.value = message.member_size;
           console.log("收到成员列表信息："+ message);
         }else{
+          ElNotification({
+          title:"来自："+message.user_name+"的消息："+message.user_content,
+          type: 'success',
+          })
           updateContent(message)
           console.log("收到了来自后端的消息"+ message);
         }
@@ -363,6 +382,7 @@ export default {
       friend_list,
       member_num,
       toWhichFriend,
+      two_dimension_content_list,
       sendMessage,
       updateContent,
       removeMember,

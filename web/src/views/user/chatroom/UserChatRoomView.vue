@@ -117,6 +117,8 @@ export default {
         //   user_name:"",
         //   is_member_info:"",
         //   member_id:""
+        //   is_offline_info:"",
+        //   offline_id:"",
         //  }
       ]
     )
@@ -260,13 +262,13 @@ export default {
           title: '你成功连接上了聊天室的网络！开始聊天吧！',
           type: 'success',
         })
-        console.log(user_id +"你已成功连接");
       }
  
-      //从后台接收到的信息可以有聊天消息和成员信息，需要进行区分
+      //从后台接收到的信息可以有聊天消息、成员信息和下线成员信息，需要进行区分
       socket.onmessage = (msg) => {
         //首先将接收的信息解析为Js对象，因为发过来的是JSON字符串
         const message = JSON.parse(msg.data);
+        //开始判断信息的类型
         if(message.is_offline_info){
           removeMember(message.offline_id);
           console.log("当前下线的用户id:" + message.offline_id);

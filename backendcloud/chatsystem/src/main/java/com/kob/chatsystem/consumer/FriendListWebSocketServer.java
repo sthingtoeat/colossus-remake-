@@ -27,57 +27,14 @@ public class FriendListWebSocketServer {
     public static Set<FriendListWebSocketServer> friendListWebSocketServerSet = new HashSet<>();
     private static UserInfoGetService userInfoGetService;
     private Integer userId = null;
-
+    private String userPhoto= null;     //当前用户照片
+    private String username = null;     //当前用户名
     private Session session = null;
 
     @Autowired
     private void setUserInfoGetService(UserInfoGetService userInfoGetService) {
         FriendListWebSocketServer.userInfoGetService = userInfoGetService;
     }
-    @OnOpen
-    public void onOpen(Session session ,@PathParam("id") String id) {
-        // 建立连接
-        this.session = session;
-        this.userId = Integer.parseInt(id);
-        //添加链接
-        addSocket();
-        System.out.println("用户:"+ this.userId + "已连接成功,当前在线人数：" + friendListWebSocketServerMap.size());
-        sendMemberInfoWhenOpen();
-    }
-
-    @OnClose
-    public void onClose() {
-        // 关闭链接
-        removeSocket();
-        sendOfflineMemberIdWhenClose();
-        System.out.println("用户:"+ userId + "已离线");
-
-    }
-
-    @OnMessage
-    public void onMessage(String message) {
-        // 从Client接收消息
-        System.out.println("从前端接收到信息：" + message);
-    }
-
-    @OnError
-    public void onError(Throwable error) {
-        //报错了也得宣布下线
-        removeSocket();
-        //打印错误报告
-        error.printStackTrace();
-    }
-    //将自身移除,离线
-    public void removeSocket(){
-        friendListWebSocketServerMap.remove(userId,this);
-        friendListWebSocketServerSet.remove(this);
-    }
-    //添加自身，上线
-    public void addSocket(){
-        friendListWebSocketServerMap.put(userId,this);
-        friendListWebSocketServerSet.add(this);
-    }
-
     //发送信息给前端的函数
     public void sendMessage(Map<String ,String> message) {
         synchronized (this.session){        //不能改成final
@@ -89,7 +46,17 @@ public class FriendListWebSocketServer {
         }
     }
 
-    //发送成员列表，仅用户进入聊天室(打开链接时)时给自己发送,此处代码复用度有点差，需要进行优化
+    //将自身移除,离线
+    public void removeSocket(){
+        friendListWebSocketServerMap.remove(userId,this);
+        friendListWebSocketServerSet.remove(this);
+    }
+    //添加自身，上线
+    public void addSocket(){
+        friendListWebSocketServerMap.put(userId,this);
+        friendListWebSocketServerSet.add(this);
+    }
+    //发送成员列表,总共两个过程：1.给自己发在线成员的信息，2.给其他人发我上线的信息，思路清晰版本请看聊天室的代码
     public void sendMemberInfoWhenOpen(){
         Integer size = friendListWebSocketServerMap.size();                           //在线的人数
         String thisPhoto = userInfoGetService.GetPhotoById(userId);         //此链接的用户的头像
@@ -135,6 +102,39 @@ public class FriendListWebSocketServer {
             }
         }
     }
+    @OnOpen
+    public void onOpen(Session session ,@PathParam("id") String id) {
+        // 建立连接
+        this.session = session;
+        this.userId = Integer.parseInt(id);
+        //添加链接
+        addSocket();
+        System.out.println("用户:"+ this.userId + "已连接成功,当前在线人数：" + friendListWebSocketServerMap.size());
+        sendMemberInfoWhenOpen();
+    }
+
+    @OnClose
+    public void onClose() {
+        // 关闭链接
+        removeSocket();
+        sendOfflineMemberIdWhenClose();
+        System.out.println("用户:"+ userId + "已离线");
+
+    }
+
+    @OnMessage
+    public void onMessage(String message) {
+        // 从Client接收消息
+        System.out.println("从前端接收到信息：" + message);
+    }
+
+    @OnError
+    public void onError(Throwable error) {
+        //报错了也得宣布下线
+        removeSocket();
+        //打印错误报告
+        error.printStackTrace();
+    }
 
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(value = "friendList"),
@@ -142,7 +142,7 @@ public class FriendListWebSocketServer {
             key = "friendList"
     ))
     public void receive(Map<String , String> msg , @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag, Channel channel) throws IOException {
-        System.out.println("Ws服务器接收到：" + msg);
+        System.out.println("Ws好友服务器接收到：" + msg);
         channel.basicAck(deliveryTag , true);
         //获取消息中的朋友id
         String friendId = msg.get("friend_id");
