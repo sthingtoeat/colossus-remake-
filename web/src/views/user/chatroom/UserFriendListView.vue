@@ -220,14 +220,14 @@ export default {
       return store.getters.getContentById(id);
     }
 
-    //临时启用！！！
+    //临时启用！！！,message只有发送内容，没有任何其他内容
     const addContent = (message) =>{
       let temp = reactive({
         user_id:user_id,
         user_name:user_name,
         user_content:message,
         user_photo:user_photo,
-        time:getDate(),
+        time:getDate(getDateIntervar()),
       })
 
       content_list.push({   //请不要直接push这个temp
@@ -235,7 +235,7 @@ export default {
         user_name:user_name,
         user_content:message,
         user_photo:user_photo,
-        time:getDate(),
+        time:getDate(getDateIntervar()),
       })
 
       saveMyContentToStore(temp);
@@ -250,7 +250,7 @@ export default {
         user_name:message.user_name,
         user_content:message.user_content,
         user_photo:message.user_photo,
-        time:getDate(),
+        time:getDate(message.time),
       })
     }
     //将接收的消息存入store中
@@ -263,7 +263,7 @@ export default {
         user_name:message.user_name,
         user_content:message.user_content,
         user_photo:message.user_photo,
-        time:getDate(),
+        time:getDate(message.time),
       })
     }
 

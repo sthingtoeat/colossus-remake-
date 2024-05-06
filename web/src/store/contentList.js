@@ -2,14 +2,14 @@
 
 export default {
     state: [{
-        id:"",          //聊天对象的id
-        content_list:[{
-            user_id:"",     //发送聊天消息的用户id
-            user_name:"",
-            user_content:"",
-            user_photo:"",
-            time:"", 
-        }]     
+        // id:"",          //聊天对象的id
+        // content_list:[{
+        //     user_id:"",     //发送聊天消息的用户id
+        //     user_name:"",
+        //     user_content:"",
+        //     user_photo:"",
+        //     time:"", 
+        // }]     
     }],
     getters: {
         getContentById:(state) => (id) =>{
@@ -46,10 +46,10 @@ export default {
             }//此处不加上中括号，则会导致content_list与上面设定的不一致,导致创建state对象
             //导致state.length增加
 
-            console.log("当前state大小："+state.length);
-            console.log("拥有聊天记录数量：" + state[1].content_list.length);
+            // console.log("当前state大小："+state.length);
+            // console.log("拥有聊天记录数量：" + state[1].content_list.length);
             console.log(state);
-            console.log("其最新内容为" + state[1].content_list[state[1].content_list.length - 1].user_content)
+            // console.log("其最新内容为" + state[1].content_list[state[1].content_list.length - 1].user_content)
         }
     },
     actions: {
