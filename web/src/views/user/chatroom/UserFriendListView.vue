@@ -88,6 +88,9 @@ export default {
     ContentField,
     ChatBubbleListBox,
   },
+  computed:{
+  
+  },
   setup() {
 
     const store = useStore();
@@ -132,18 +135,9 @@ export default {
         //  }
       ]
     )
-    //一个存储聊天内容二维数组,且可以用id进行映射
-    let two_dimension_content_list = reactive(
-      [
-        {
-          id:0,
-          content:[],
-        }
-      ]
-    )
 
     //存储给哪个朋友发消息的朋友id
-    let toWhichFriend = ref("");
+    let toWhichFriend = ref(0);
     
     //发送聊天消息给后端
     const sendMessage = (message) =>{
@@ -203,23 +197,74 @@ export default {
     const chooseFriend = (id) =>{
       toWhichFriend.value = id;
 
-      console.log("id:"+two_dimension_content_list.id+"内容为："+two_dimension_content_list.content);
-    }
-    //把消息放进二维数组里
-    const push_content_to_two_dimension = () =>{
+      //清空content_list
+      content_list.length = 0;
       
+      let list_temp = reactive(getStoreInfo(id));
+
+      for(let i = 0 ; i < list_temp.length ; i ++){
+
+        content_list.push({
+          user_id:list_temp[i].user_id,
+          user_name:list_temp[i].user_name,
+          user_photo:list_temp[i].user_photo,
+          user_content:list_temp[i].user_content,
+          time:list_temp[i].time,
+        });
+      }
+      console.log(list_temp);
+      console.log(content_list);
+    }
+
+    const getStoreInfo = (id) =>{
+      return store.getters.getContentById(id);
     }
 
     //临时启用！！！
     const addContent = (message) =>{
-      content_list.push({
+      let temp = reactive({
         user_id:user_id,
         user_name:user_name,
         user_content:message,
         user_photo:user_photo,
         time:getDate(),
       })
-      push_content_to_two_dimension();
+
+      content_list.push({   //请不要直接push这个temp
+        user_id:user_id,
+        user_name:user_name,
+        user_content:message,
+        user_photo:user_photo,
+        time:getDate(),
+      })
+
+      saveMyContentToStore(temp);
+    }
+
+    //将输入消息保存到store中,传入参数除了聊天消息的内容，其他都现有
+    const saveMyContentToStore = (message) => {
+      store.commit({
+        type:"addContent",
+        id:toWhichFriend.value + "",//修改为字符类型以统一类型，后端传的是string类型
+        user_id:message.user_id,
+        user_name:message.user_name,
+        user_content:message.user_content,
+        user_photo:message.user_photo,
+        time:getDate(),
+      })
+    }
+    //将接收的消息存入store中
+    const saveReceiveContentToStore = (message) => {
+      console.log("正在将接收的消息存入store:"+message.user_id);
+      store.commit({
+        type:"addContent",
+        id:message.user_id,
+        user_id:message.user_id,
+        user_name:message.user_name,
+        user_content:message.user_content,
+        user_photo:message.user_photo,
+        time:getDate(),
+      })
     }
 
     //处理来自后端的消息并添加到content_list数组
@@ -230,19 +275,22 @@ export default {
       let receive_time = getDate(message.time);
 
       //如果这是第一条消息或者间隔时间超过五分钟，则需要显示时间
-      if(content_list.length < 1 || (getDateIntervar() - receive_time) > 5*60*1000){
+      if(content_list.length < 2 || (getDateIntervar() - receive_time) > 5*60*1000){
         time.value = receive_time;
       }
 
-      content_list.push({
-        user_id:message.user_id,
-        user_name:message.user_name,
-        user_content:message.user_content,
-        user_photo:message.user_photo,
-        time:time.value,
-      })
-
-      push_content_to_two_dimension();
+      //消息是发给我的且我刚好在和他对话，是则显示出来，后面这个需要使用==不能用===,可能是类型问题？
+      if(message.friend_id === user_id && message.user_id == toWhichFriend.value){
+        content_list.push({
+          user_id:message.user_id,
+          user_name:message.user_name,
+          user_content:message.user_content,
+          user_photo:message.user_photo,
+          time:time.value,
+        })
+      }
+    
+      saveReceiveContentToStore(message);
     }
     
     //移除在线成员
@@ -382,7 +430,6 @@ export default {
       friend_list,
       member_num,
       toWhichFriend,
-      two_dimension_content_list,
       sendMessage,
       updateContent,
       removeMember,
@@ -392,6 +439,8 @@ export default {
       getFriendList,
       chooseFriend,
       addContent,
+      saveMyContentToStore,
+      getStoreInfo,
     }
   },
 };
