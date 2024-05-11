@@ -2,6 +2,8 @@
     <PlayGround v-if="$store.state.pk.status === 'playing'" />
     <MatchGround v-if="$store.state.pk.status === 'matching'" />
     <ResultBoard v-if="$store.state.pk.loser != 'none'" />
+    <div class="user-color-left" v-if="$store.state.pk.status == 'playing' && $store.state.user.id == $store.state.pk.a_id">你在左下角！</div>
+    <div class="user-color-right" v-if="$store.state.pk.status == 'playing' && $store.state.user.id == $store.state.pk.b_id">你在右上角!</div>
 </template>
 
 <script>
@@ -88,4 +90,16 @@ export default {
 </script>
 
 <style scoped>
+div.user-color-left{
+    text-align: center;
+    color:rgb(68, 68, 255);
+    font-size: 30px;
+    font-weight: 600;
+}
+div.user-color-right{
+    text-align: center;
+    color:rgb(248, 76, 76);
+    font-size: 30px;
+    font-weight: 600;
+}
 </style>
