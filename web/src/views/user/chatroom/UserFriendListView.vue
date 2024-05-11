@@ -52,9 +52,13 @@
                     </ChatBubbleListBox>
                   </el-scrollbar>
                 </div>
-                <div>
+                <div v-if="toWhichFriend != null">
                   <el-input :span="18" v-model="input_content" @keydown.enter="sendMessage(input_content)"  placeholder="说点什么吧~" />
                   <el-button @click="sendMessage(input_content)" style="float:right;margin-top:5px" type="primary">发送</el-button>
+                </div>
+                <div v-else>
+                  <el-input disabled :span="18" v-model="input_content" @keydown.enter="sendMessage(input_content)"  placeholder="说点什么吧~" />
+                  <el-button disabled @click="sendMessage(input_content)" style="float:right;margin-top:5px" type="primary">发送</el-button>
                 </div>
               </el-col>
               <el-col :span="6">
@@ -137,7 +141,7 @@ export default {
     )
 
     //存储给哪个朋友发消息的朋友id
-    let toWhichFriend = ref(0);
+    let toWhichFriend = ref();
     
     //发送聊天消息给后端
     const sendMessage = (message) =>{
