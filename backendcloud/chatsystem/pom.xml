@@ -10,6 +10,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>chatsystem</artifactId>
+    <packaging>jar</packaging>
+
 
     <properties>
         <maven.compiler.source>19</maven.compiler.source>
@@ -126,5 +128,24 @@
         </dependency>
 
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <!--这里写上main方法所在类的路径，每个模块地址不一样需要调整-->
+                <configuration>
+                    <mainClass>com.kob.chatsystem.ChatSystemApplication</mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
