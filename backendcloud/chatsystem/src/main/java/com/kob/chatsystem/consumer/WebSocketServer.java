@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-@ServerEndpoint("/websocket/chatroom/{id}")
+@ServerEndpoint("/chatApi/websocket/chatroom/{id}")
 public class WebSocketServer {
     private static Set<WebSocketServer> webSocketServerSet = new HashSet<>();
 

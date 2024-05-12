@@ -94,7 +94,7 @@ export default {
     const user_id = store.state.user.id;
     const user_name = store.state.user.username;
     const user_photo = store.state.user.photo;
-    const socketUrl = `ws://127.0.0.1:3003/websocket/chatroom/${user_id}`;
+    const socketUrl = `ws://127.0.0.1:3003/chatApi/websocket/chatroom/${user_id}`;
 
     let input_content = ref("");
     let content_list = reactive(
@@ -133,7 +133,7 @@ export default {
         return ;
       }
       $.ajax({
-          url:"http://127.0.0.1:3003/message/send",
+          url:"http://127.0.0.1:3003/chatApi/message/send",
           type:"post",
           data:{
             user_id:user_id,

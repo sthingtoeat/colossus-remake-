@@ -17,14 +17,14 @@ public class MessageSendController {
     private RabbitTemplate rabbitTemplate;
 
     //聊天室的api
-    @RequestMapping("/message/send")
+    @RequestMapping("/chatApi/message/send")
     public String SendMessage(@RequestParam Map<String, String> map){
         rabbitTemplate.convertAndSend("chatroom","chatroom", map);
         return "信息发送成功";
     }
 
     //好友列表的api
-    @RequestMapping("/message/sendFriend")
+    @RequestMapping("/chatApi/message/sendFriend")
     public String SendMessageToFriend(@RequestParam Map<String ,String> map){
         rabbitTemplate.convertAndSend("friendList","friendList",map);
         return "好友信息发送成功";

@@ -101,7 +101,7 @@ export default {
     const user_id = store.state.user.id;
     const user_name = store.state.user.username;
     const user_photo = store.state.user.photo;
-    const socketUrl = `ws://127.0.0.1:3003/websocket/friendList/${user_id}`;
+    const socketUrl = `ws://127.0.0.1:3003/chatApi/websocket/friendList/${user_id}`;
 
     let input_content = ref("");
     let content_list = reactive(
@@ -153,7 +153,7 @@ export default {
         return ;
       }
       $.ajax({
-          url:"http://127.0.0.1:3003/message/sendFriend",
+          url:"http://127.0.0.1:3003/chatApi/message/sendFriend",
           type:"post",
           data:{
             user_id:user_id,
@@ -175,7 +175,7 @@ export default {
     //获取好友列表
     const getFriendList = () => {
       $.ajax({
-        url:"http://127.0.0.1:3003/friendList/get",
+        url:"http://127.0.0.1:3003/chatApi/friendList/get",
         type:"post",
         success(resp){
           for(let i = 0 ; i < resp.length ; i ++){

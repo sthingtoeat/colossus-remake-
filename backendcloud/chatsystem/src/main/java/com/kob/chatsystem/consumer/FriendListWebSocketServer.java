@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-@ServerEndpoint("/websocket/friendList/{id}")
+@ServerEndpoint("/chatApi/websocket/friendList/{id}")
 public class FriendListWebSocketServer {
     //使用Integer类型的id标记每个链接
     public static ConcurrentHashMap<Integer,FriendListWebSocketServer> friendListWebSocketServerMap = new ConcurrentHashMap<>();

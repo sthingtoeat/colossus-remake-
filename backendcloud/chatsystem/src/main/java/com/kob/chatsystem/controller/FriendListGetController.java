@@ -14,7 +14,7 @@ public class FriendListGetController {
     @Autowired
     FriendListGetService friendListGetService;
 
-    @RequestMapping("/friendList/get")
+    @RequestMapping("/chatApi/friendList/get")
     public List<User> FriendListGet(){
 
         return friendListGetService.FriendListGetService();
