@@ -6,11 +6,44 @@
            <el-row><!--<--这里是总侧边栏的载体，包括了左边的两列内容-->
             <!--这里是聊天室最左边那一小列的载体，下面的才是具体的内容 -->
             <el-col class="user-info-box" :span="6" style="height:800px;background-color:rgb(0,0,0,60%);border-radius:7px">
-              <el-avatar style="margin-left:15%" :size="54" :src="user_photo"/>
+              <el-avatar :size="54" :src="user_photo"/>
             </el-col>
             <el-col :span="18"><!--这里是侧边栏稍微宽一点的一列-->
               <div >  
-                <el-input v-model="input1" style="width: full;margin-top:3%" size="large" placeholder="搜索好友" :prefix-icon="Search"/>
+                <el-input v-model="input1" style="width: 75%;margin-top:3%" size="large" placeholder="搜索好友" :prefix-icon="Search"/>
+                <el-button @click="centerDialogVisible = true" type="plain" style="width:15%;margin-left:5%;margin-top:3%"><el-icon><Plus /></el-icon></el-button>
+                <!-- 加好友的对话框 -->
+                <el-dialog v-model="centerDialogVisible" title="添加好友" width="500" center>
+                  <span>
+                    有朋自远方来，虽远必诛！
+                  </span>
+                  <br>
+                  <el-input
+                  v-model="friendName"
+                  style="width: 240px"
+                  placeholder="输入信息以定位你的朋友.."
+                  @keydown.enter="searchFriend()"
+                  >
+                    <template #prefix>
+                      <el-icon class="el-input__icon"><search /></el-icon>
+                    </template>
+                  </el-input>
+                  <div style="margin-top:10px" v-for="item in friend_search_list" :key="item.id">
+                      <img :src="item.photo" alt="" style="width:30px;height:30px;border-radius:50%">
+                      <label style="color:black;">{{item.username}}</label>
+                      <el-button @click="makeFriend(item.id)" v-if="user_id != item.id" type="primary" style="float:right">
+                        添加
+                      </el-button>
+                  </div>
+                  <template #footer>
+                    <div class="dialog-footer">
+                      <el-button @click="centerDialogVisible = false">算了，算了</el-button>
+                      <el-button type="primary" @click="searchFriend()">
+                        给我找找！
+                      </el-button>
+                    </div>
+                  </template>
+                </el-dialog>
                 <!-- 搜索栏下方的列表框 -->
                 <el-scrollbar max-height="600px">
                   <div @click="chooseFriend(item.friend_id)" v-for="item in friend_list" :key="item" style="margin-top:10px;color:white;background-color:grey;border-radius:7px;">
@@ -86,8 +119,10 @@ import { useStore } from "vuex";
 import { ref ,reactive, onMounted, onUnmounted} from "vue"
 import { ElNotification } from "element-plus"
 import $ from "jquery";
+import { ElMessage } from 'element-plus'
 
 export default {
+  
   components: {
     ContentField,
     ChatBubbleListBox,
@@ -102,6 +137,8 @@ export default {
     const user_name = store.state.user.username;
     const user_photo = store.state.user.photo;
     const socketUrl = `ws://127.0.0.1:3003/chatApi/websocket/friendList/${user_id}`;
+
+    const centerDialogVisible = ref(false)
 
     let input_content = ref("");
     let content_list = reactive(
@@ -139,9 +176,17 @@ export default {
         //  }
       ]
     )
+    //这里存放添加好友时从后端接收的好友信息
+    let friend_search_list = reactive(
+      [
+        
+      ]
+    )
 
     //存储给哪个朋友发消息的朋友id
     let toWhichFriend = ref();
+    //存储搜索好友输入框输入的内容
+    let friendName = ref("");
     
     //发送聊天消息给后端
     const sendMessage = (message) =>{
@@ -365,6 +410,55 @@ export default {
       return sedonds;
     }
 
+    //向后端查询好友
+    const searchFriend = () => {
+      if(friendName.value === ""){
+        ElMessage({
+            message: "你都没输入我怎么帮你找好友呢！",
+            type: 'error',
+          })
+        return ;
+      }
+      $.ajax({
+        url:"http://127.0.0.1:3003/chatApi/friend/search",
+        type:"get",
+        data:{
+          friendName:friendName.value,
+        },
+        success(resp){ 
+          friend_search_list.push(resp);
+          console.log(friend_search_list);
+        },
+        error(resp){
+          console.log(resp);
+        }
+      })
+    }
+    //添加好友
+    const makeFriend = (friend_id) =>{
+      $.ajax({
+        url:"http://127.0.0.1:3003/chatApi/friend/makeFriend",
+        type:"get",
+        data:{
+          user_id:user_id,
+          friend_id:friend_id,
+        },
+        success(resp){
+          console.log(resp);
+          ElMessage({
+            message: resp,
+            type: 'success',
+          })
+        },
+        error(resp){
+          ElMessage({
+            message: resp,
+            type: 'error',
+          })
+        }
+      })
+    }
+
     let socket = null;
     //挂载时(进入聊天室)自动调用这个函数，同时持续到取消挂载为止
     onMounted(() => {
@@ -434,6 +528,9 @@ export default {
       friend_list,
       member_num,
       toWhichFriend,
+      centerDialogVisible,
+      friendName,
+      friend_search_list,
       sendMessage,
       updateContent,
       removeMember,
@@ -445,6 +542,8 @@ export default {
       addContent,
       saveMyContentToStore,
       getStoreInfo,
+      searchFriend,
+      makeFriend,
     }
   },
 };
