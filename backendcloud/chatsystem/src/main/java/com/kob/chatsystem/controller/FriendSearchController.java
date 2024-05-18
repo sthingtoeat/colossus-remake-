@@ -19,11 +19,7 @@ public class FriendSearchController {
     private FriendSearchSerive friendSearchSerive;
 
     @RequestMapping("/chatApi/friend/search")
-    public User SearchFriendByName(@RequestParam Map<String ,String> map){
-        List<User> list = friendSearchSerive.SearchFriendByName(map.get("friendName"));
-        if(list.size() > 1){
-            System.out.println("查到了多个好友用户，停止传输");
-        }
-        return list.get(0);
+    public List<User> SearchFriendByName(@RequestParam Map<String ,String> map){
+        return friendSearchSerive.SearchFriendByName(map.get("friendName"));
     }
 }

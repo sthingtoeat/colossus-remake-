@@ -22,6 +22,7 @@ public class FriendSearchServiceImpl implements FriendSearchSerive {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username",name);
         List<User> list = friendSearchMapper.selectList(queryWrapper);
+        System.out.println(list);
         return list;
     }
 

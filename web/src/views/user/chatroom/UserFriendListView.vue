@@ -7,6 +7,23 @@
             <!--这里是聊天室最左边那一小列的载体，下面的才是具体的内容 -->
             <el-col class="user-info-box" :span="6" style="height:800px;background-color:rgb(0,0,0,60%);border-radius:7px">
               <el-avatar :size="54" :src="user_photo"/>
+              <el-icon color="green"><ChatLineRound /></el-icon>
+              <el-badge @click="friendRequestVisible = true" :value="friend_request_list.length" :hidden="friend_request_list.length == 0? true:flase" class="item" style="margin-top:20%;margin-left:5%">
+                <div><el-icon color="white" :size="40" style="margin-left:10%;"><Avatar /></el-icon></div>
+              </el-badge>
+              <!-- 下方为他人向我发起的好友请求列表 -->
+              <el-dialog v-model="friendRequestVisible" title="这些用户想成为你的好友" width="800">
+                <div style="margin-top:10px" v-for="item in friend_request_list" :key="item.id">
+                    <img :src="item.photo" alt="" style="width:30px;height:30px;border-radius:50%">
+                    <label style="color:black;">{{item.username}}</label>
+                    <el-button @click="makeFriend(item.id)" v-if="user_id != item.id" type="primary" style="margin-left:75%">
+                      同意
+                    </el-button>
+                    <el-button @click="rejectFriend(item.id)" v-if="user_id != item.id" type="danger" style="float:right">
+                      拒绝
+                    </el-button>
+                </div>
+              </el-dialog>
             </el-col>
             <el-col :span="18"><!--这里是侧边栏稍微宽一点的一列-->
               <div >  
@@ -139,6 +156,7 @@ export default {
     const socketUrl = `ws://127.0.0.1:3003/chatApi/websocket/friendList/${user_id}`;
 
     const centerDialogVisible = ref(false)
+    const friendRequestVisible = ref(false)
 
     let input_content = ref("");
     let content_list = reactive(
@@ -182,7 +200,12 @@ export default {
         
       ]
     )
+    //存放其他用户发来的好友请求
+    let friend_request_list = reactive(
+      [
 
+      ]
+    )
     //存储给哪个朋友发消息的朋友id
     let toWhichFriend = ref();
     //存储搜索好友输入框输入的内容
@@ -221,6 +244,9 @@ export default {
     const getFriendList = () => {
       $.ajax({
         url:"http://127.0.0.1:3003/chatApi/friendList/get",
+        data:{
+          user_id:user_id,
+        },
         type:"post",
         success(resp){
           for(let i = 0 ; i < resp.length ; i ++){
@@ -426,7 +452,13 @@ export default {
           friendName:friendName.value,
         },
         success(resp){ 
-          friend_search_list.push(resp);
+          for(let i = 0 ; i < resp.length ; i ++){
+            friend_search_list.push({
+              username:resp[i].username,
+              id:resp[i].id,
+              photo:resp[i].photo,
+            });
+          }
           console.log(friend_search_list);
         },
         error(resp){
@@ -444,7 +476,12 @@ export default {
           friend_id:friend_id,
         },
         success(resp){
-          console.log(resp);
+          //仅清除好友请求列表里的内容，搜索处的列表不清除
+          for(let i = 0 ; i < friend_request_list.length ; i ++){
+            if(friend_request_list[i].id == friend_id){
+              friend_request_list.splice(i,1);
+            }
+          }
           ElMessage({
             message: resp,
             type: 'success',
@@ -458,6 +495,60 @@ export default {
         }
       })
     }
+    //拒绝好友请求
+    const rejectFriend = (friend_id) =>{
+      $.ajax({
+        url:"http://127.0.0.1:3003/chatApi/friend/rejectFriend",
+        type:"get",
+        data:{
+          friend_id:friend_id,
+          user_id:user_id,
+        },
+        success(resp){
+          //仅清除好友请求列表里的内容，搜索处的列表不清除
+          for(let i = 0 ; i < friend_request_list.length ; i ++){
+            if(friend_request_list[i].id == friend_id){
+              friend_request_list.splice(i,1);
+            }
+          }
+          ElMessage({
+            message: resp,
+            type: 'success',
+          })
+        },
+        error(resp){
+          console.log(resp);
+        }
+      })
+    }
+    //进入好友列表时，查询其他用户发送的好友请求
+    const searchFriendRequest = () =>{
+      $.ajax({
+        url:"http://127.0.0.1:3003/chatApi/friend/request/get",
+        data:{
+          user_id:user_id,
+        },
+        type:"get",
+        success(resp){
+          for(let i = 0 ; i < resp.length ; i ++){
+            friend_request_list.push({
+            id:resp[i].id,
+            photo:resp[i].photo,
+            username:resp[i].username,
+          })
+          }
+        },
+        error(resp){
+          console.log(resp);
+        }
+      })
+
+      
+    }
+    //在好友列表时，实时接收后端发来的好友请求
+    const searchFriendRequestOnline = () =>{
+
+    }
 
     let socket = null;
     //挂载时(进入聊天室)自动调用这个函数，同时持续到取消挂载为止
@@ -468,6 +559,8 @@ export default {
       socket.onopen = () => {
         //链接建立的时候需要获取好友列表
         getFriendList();
+        //搜索一下有没有好友请求
+        searchFriendRequest();
         ElNotification({
           title: '连接成功，开始和你的好友聊天吧！',
           type: 'success',
@@ -531,6 +624,8 @@ export default {
       centerDialogVisible,
       friendName,
       friend_search_list,
+      friendRequestVisible,
+      friend_request_list,
       sendMessage,
       updateContent,
       removeMember,
@@ -544,6 +639,9 @@ export default {
       getStoreInfo,
       searchFriend,
       makeFriend,
+      searchFriendRequest,
+      searchFriendRequestOnline,
+      rejectFriend,
     }
   },
 };
