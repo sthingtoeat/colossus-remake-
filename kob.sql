@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50515
 File Encoding         : 65001
 
-Date: 2024-03-25 15:22:06
+Date: 2024-05-19 10:43:24
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -29,23 +29,40 @@ CREATE TABLE `bot` (
   `modifytime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of bot
 -- ----------------------------
 INSERT INTO `bot` VALUES ('2', '2', 'Bot的标题', 'Bot的描述', 'Bot的代码', '2022-11-12 21:22:50', '2022-11-12 21:22:50');
 INSERT INTO `bot` VALUES ('3', '2', 'Bot的标题', 'Bot的描述', 'Bot的代码', '2022-11-12 21:22:56', '2022-11-12 21:22:56');
-INSERT INTO `bot` VALUES ('7', '1', 'Bot的标题', 'Bot的描述(改)', 'Bot的代码(改)', '2022-11-12 21:37:15', '2022-11-12 23:29:09');
 INSERT INTO `bot` VALUES ('8', '1', 'Bot的标题', 'Bot的描述', 'Bot的代码', '2022-11-12 21:37:20', '2022-11-12 21:37:20');
 INSERT INTO `bot` VALUES ('9', '1', '123', '123123', '21312312', '2022-11-14 19:39:18', '2022-11-14 19:39:18');
 INSERT INTO `bot` VALUES ('10', '1', '1221', '这个用户很懒，啥都没写', '123', '2022-11-14 19:40:56', '2022-11-14 20:27:00');
 INSERT INTO `bot` VALUES ('11', '1', '321', '123', '123', '2022-11-14 19:44:56', '2022-11-14 20:27:59');
 INSERT INTO `bot` VALUES ('15', '1', 'hello', 'hi', '#include<iostream>\nusing namespace std;\n\nint main()\n{\n    cout << \"hello\" <<endl;\n    return 0;\n}', '2022-11-14 20:36:57', '2022-11-14 20:36:57');
-INSERT INTO `bot` VALUES ('16', '1', 'bot1', '这个用户很懒，啥都没写', 'package com.kob.botrunningsystem.utils;\r\n\r\npublic class Bot implements com.kob.botrunningsystem.utils.BotInterface{\r\n    @Override\r\n    public Integer nextMove(String input) {\r\n        return 0;\r\n    }\r\n}\r\n', '2022-12-26 21:13:00', '2022-12-27 22:12:49');
+INSERT INTO `bot` VALUES ('16', '1', '单一方向', '这个用户很懒，啥都没写', 'package com.kob.botrunningsystem.utils;\r\n\r\npublic class Bot implements com.kob.botrunningsystem.utils.BotInterface{\r\n    @Override\r\n    public Integer nextMove(String input) {\r\n        return 0;\r\n    }\r\n}\r\n', '2022-12-26 21:13:00', '2024-05-11 12:37:52');
 INSERT INTO `bot` VALUES ('17', '2', 'bot2', '这个用户很懒，啥都没写', 'package com.kob.botrunningsystem.utils;\n\npublic class Bot implements com.kob.botrunningsystem.utils.BotInterface{\n    @Override\n    public Integer nextMove(String input) {\n        return 2;\n    }\n}\n', '2022-12-26 21:18:52', '2022-12-27 22:25:14');
-INSERT INTO `bot` VALUES ('18', '1', '更强的bot', '这个用户很懒，啥都没写', 'package com.kob.botrunningsystem.utils;\r\n\r\nimport java.io.File;\r\nimport java.io.FileNotFoundException;\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\nimport java.util.Scanner;\r\n\r\npublic class Bot implements java.util.function.Supplier<Integer>{\r\n    static class Cell{\r\n        public int x , y;\r\n        public Cell(int x , int y){\r\n            this.x = x;\r\n            this.y = y;\r\n        }\r\n    }\r\n\r\n    private boolean check_tail_increasing(int step){   //检查当前回合，判断蛇是否需要变长\r\n        if(step <= 10) return true;\r\n        return step % 3 == 1;\r\n    }\r\n\r\n    public List<Cell> getCells(int sx , int sy , String steps){\r\n        steps = steps.substring(1 , steps.length() - 1);    //去除括号\r\n        List<Cell> res = new ArrayList<>();\r\n\r\n        int [] dx = {-1 , 0 , 1 , 0} , dy = {0 , 1 , 0 , -1};\r\n        int x = sx , y = sy;\r\n        int step = 0;\r\n        res.add(new Cell(x , y));\r\n        for(int i = 0 ; i < steps.length(); i ++){\r\n            int d = steps.charAt(i) - \'0\';\r\n            x += dx[d];\r\n            y += dy[d];\r\n            res.add(new Cell(x , y));\r\n            if(!check_tail_increasing( ++ step)){\r\n                res.remove(0);\r\n            }\r\n        }\r\n        return res;\r\n    }\r\n\r\n    public Integer nextMove(String input) {\r\n        String[] strs = input.split(\"#\");\r\n        int [][] g = new int[13][14];\r\n        for(int i = 0 , k = 0 ; i < 13 ; i ++){\r\n            for(int j = 0 ; j < 14 ; j ++ , k ++){\r\n                if(strs[0].charAt(k) == \'1\'){\r\n                    g[i][j] = 1;\r\n                }\r\n            }\r\n        }\r\n\r\n        int aSx = Integer.parseInt(strs[1]), aSy = Integer.parseInt(strs[2]);\r\n        int bSx = Integer.parseInt(strs[4]), bSy = Integer.parseInt(strs[5]);\r\n\r\n        List<Cell> aCells = getCells(aSx , aSy , strs[3]);\r\n        List<Cell> bCells = getCells(bSx , bSy , strs[6]);\r\n\r\n        for(Cell c : aCells) g[c.x][c.y] = 1;\r\n        for(Cell c : bCells) g[c.x][c.y] = 1;\r\n\r\n        int[] dx = {-1 , 0 , 1 , 0} ,dy = {0 , 1 , 0 , -1};\r\n        for(int i = 0 ; i < 4 ; i ++){\r\n            int x = aCells.get(aCells.size() - 1).x + dx[i];\r\n            int y = aCells.get(aCells.size() - 1).y + dy[i];\r\n            if(x >= 0 && x < 13 && y >= 0 && y < 14 && g[x][y] == 0){\r\n                return i;\r\n            }\r\n        }\r\n        return 0;\r\n    }\r\n\r\n    @Override\r\n    public Integer get() {\r\n        File file = new File(\"input.txt\");\r\n        try {\r\n            Scanner sc = new Scanner(file);\r\n            return nextMove(sc.next());\r\n        } catch (FileNotFoundException e) {\r\n            throw new RuntimeException(e);\r\n        }\r\n    }\r\n}\r\n', '2022-12-27 23:15:03', '2023-03-01 11:01:40');
-INSERT INTO `bot` VALUES ('19', '2', '更强的bot', '这个用户很懒，啥都没写', 'package com.kob.botrunningsystem.utils;\n\nimport java.io.File;\nimport java.io.FileNotFoundException;\nimport java.util.ArrayList;\nimport java.util.List;\nimport java.util.Scanner;\n\npublic class Bot implements java.util.function.Supplier<Integer>{\n    static class Cell{\n        public int x , y;\n        public Cell(int x , int y){\n            this.x = x;\n            this.y = y;\n        }\n    }\n\n    private boolean check_tail_increasing(int step){   //检查当前回合，判断蛇是否需要变长\n        if(step <= 10) return true;\n        return step % 3 == 1;\n    }\n\n    public List<Cell> getCells(int sx , int sy , String steps){\n        steps = steps.substring(1 , steps.length() - 1);    //去除括号\n        List<Cell> res = new ArrayList<>();\n\n        int [] dx = {-1 , 0 , 1 , 0} , dy = {0 , 1 , 0 , -1};\n        int x = sx , y = sy;\n        int step = 0;\n        res.add(new Cell(x , y));\n        for(int i = 0 ; i < steps.length(); i ++){\n            int d = steps.charAt(i) - \'0\';\n            x += dx[d];\n            y += dy[d];\n            res.add(new Cell(x , y));\n            if(!check_tail_increasing( ++ step)){\n                res.remove(0);\n            }\n        }\n        return res;\n    }\n\n    public Integer nextMove(String input) {\n        String[] strs = input.split(\"#\");\n        int [][] g = new int[13][14];\n        for(int i = 0 , k = 0 ; i < 13 ; i ++){\n            for(int j = 0 ; j < 14 ; j ++ , k ++){\n                if(strs[0].charAt(k) == \'1\'){\n                    g[i][j] = 1;\n                }\n            }\n        }\n\n        int aSx = Integer.parseInt(strs[1]), aSy = Integer.parseInt(strs[2]);\n        int bSx = Integer.parseInt(strs[4]), bSy = Integer.parseInt(strs[5]);\n\n        List<Cell> aCells = getCells(aSx , aSy , strs[3]);\n        List<Cell> bCells = getCells(bSx , bSy , strs[6]);\n\n        for(Cell c : aCells) g[c.x][c.y] = 1;\n        for(Cell c : bCells) g[c.x][c.y] = 1;\n\n        int[] dx = {-1 , 0 , 1 , 0} ,dy = {0 , 1 , 0 , -1};\n        for(int i = 0 ; i < 4 ; i ++){\n            int x = aCells.get(aCells.size() - 1).x + dx[i];\n            int y = aCells.get(aCells.size() - 1).y + dy[i];\n            if(x >= 0 && x < 13 && y >= 0 && y < 14 && g[x][y] == 0){\n                return i;\n            }\n        }\n        return 0;\n    }\n\n    @Override\n    public Integer get() {\n        File file = new File(\"input.txt\");\n        try {\n            Scanner sc = new Scanner(file);\n            return nextMove(sc.next());\n        } catch (FileNotFoundException e) {\n            throw new RuntimeException(e);\n        }\n    }\n}\n', '2022-12-27 23:15:18', '2023-03-01 11:01:57');
+INSERT INTO `bot` VALUES ('18', '1', '更强的bot', '这个用户很懒，啥都没写', 'package com.kob.botrunningsystem.utils;\r\n\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\n\r\npublic class Bot implements com.kob.botrunningsystem.utils.BotInterface {\r\n    static class Cell {\r\n        public int x, y;\r\n        public Cell(int x, int y) {\r\n            this.x = x;\r\n            this.y = y;\r\n        }\r\n    }\r\n\r\n    private boolean check_tail_increasing(int step) {  // 检验当前回合，蛇的长度是否增加\r\n        if (step <= 10) return true;\r\n        return step % 3 == 1;\r\n    }\r\n\r\n    public List<Cell> getCells(int sx, int sy, String steps) {\r\n        steps = steps.substring(1, steps.length() - 1);\r\n        List<Cell> res = new ArrayList<>();\r\n\r\n        int[] dx = {-1, 0, 1, 0}, dy = {0, 1, 0, -1};\r\n        int x = sx, y = sy;\r\n        int step = 0;\r\n        res.add(new Cell(x, y));\r\n        for (int i = 0; i < steps.length(); i ++ ) {\r\n            int d = steps.charAt(i) - \'0\';\r\n            x += dx[d];\r\n            y += dy[d];\r\n            res.add(new Cell(x, y));\r\n            if (!check_tail_increasing( ++ step)) {\r\n                res.remove(0);\r\n            }\r\n        }\r\n        return res;\r\n    }\r\n\r\n    @Override\r\n    public Integer nextMove(String input) {\r\n        String[] strs = input.split(\"#\");\r\n        int[][] g = new int[13][14];\r\n        for (int i = 0, k = 0; i < 13; i ++ ) {\r\n            for (int j = 0; j < 14; j ++, k ++ ) {\r\n                if (strs[0].charAt(k) == \'1\') {\r\n                    g[i][j] = 1;\r\n                }\r\n            }\r\n        }\r\n\r\n        int aSx = Integer.parseInt(strs[1]), aSy = Integer.parseInt(strs[2]);\r\n        int bSx = Integer.parseInt(strs[4]), bSy = Integer.parseInt(strs[5]);\r\n\r\n        List<Cell> aCells = getCells(aSx, aSy, strs[3]);\r\n        List<Cell> bCells = getCells(bSx, bSy, strs[6]);\r\n\r\n        for (Cell c: aCells) g[c.x][c.y] = 1;\r\n        for (Cell c: bCells) g[c.x][c.y] = 1;\r\n\r\n        int[] dx = {-1, 0, 1, 0}, dy = {0, 1, 0, -1};\r\n        for (int i = 0; i < 4; i ++ ) {\r\n            int x = aCells.get(aCells.size() - 1).x + dx[i];\r\n            int y = aCells.get(aCells.size() - 1).y + dy[i];\r\n            if (x >= 0 && x < 13 && y >= 0 && y < 14 && g[x][y] == 0) {\r\n                return i;\r\n            }\r\n        }\r\n\r\n        return 0;\r\n    }\r\n}\r\n', '2022-12-27 23:15:03', '2024-04-03 15:35:14');
+INSERT INTO `bot` VALUES ('19', '2', '更强的bot', '这个用户很懒，啥都没写', 'package com.kob.botrunningsystem.utils;\n\nimport java.util.ArrayList;\nimport java.util.List;\n\npublic class Bot implements com.kob.botrunningsystem.utils.BotInterface {\n    static class Cell {\n        public int x, y;\n        public Cell(int x, int y) {\n            this.x = x;\n            this.y = y;\n        }\n    }\n\n    private boolean check_tail_increasing(int step) {  // 检验当前回合，蛇的长度是否增加\n        if (step <= 10) return true;\n        return step % 3 == 1;\n    }\n\n    public List<Cell> getCells(int sx, int sy, String steps) {\n        steps = steps.substring(1, steps.length() - 1);\n        List<Cell> res = new ArrayList<>();\n\n        int[] dx = {-1, 0, 1, 0}, dy = {0, 1, 0, -1};\n        int x = sx, y = sy;\n        int step = 0;\n        res.add(new Cell(x, y));\n        for (int i = 0; i < steps.length(); i ++ ) {\n            int d = steps.charAt(i) - \'0\';\n            x += dx[d];\n            y += dy[d];\n            res.add(new Cell(x, y));\n            if (!check_tail_increasing( ++ step)) {\n                res.remove(0);\n            }\n        }\n        return res;\n    }\n\n    @Override\n    public Integer nextMove(String input) {\n        String[] strs = input.split(\"#\");\n        int[][] g = new int[13][14];\n        for (int i = 0, k = 0; i < 13; i ++ ) {\n            for (int j = 0; j < 14; j ++, k ++ ) {\n                if (strs[0].charAt(k) == \'1\') {\n                    g[i][j] = 1;\n                }\n            }\n        }\n\n        int aSx = Integer.parseInt(strs[1]), aSy = Integer.parseInt(strs[2]);\n        int bSx = Integer.parseInt(strs[4]), bSy = Integer.parseInt(strs[5]);\n\n        List<Cell> aCells = getCells(aSx, aSy, strs[3]);\n        List<Cell> bCells = getCells(bSx, bSy, strs[6]);\n\n        for (Cell c: aCells) g[c.x][c.y] = 1;\n        for (Cell c: bCells) g[c.x][c.y] = 1;\n\n        int[] dx = {-1, 0, 1, 0}, dy = {0, 1, 0, -1};\n        for (int i = 0; i < 4; i ++ ) {\n            int x = aCells.get(aCells.size() - 1).x + dx[i];\n            int y = aCells.get(aCells.size() - 1).y + dy[i];\n            if (x >= 0 && x < 13 && y >= 0 && y < 14 && g[x][y] == 0) {\n                return i;\n            }\n        }\n\n        return 0;\n    }\n}\n', '2022-12-27 23:15:18', '2024-04-03 15:36:15');
+INSERT INTO `bot` VALUES ('23', '1', 'test', '这个用户很懒，什么也没留下~', '2', '2024-04-10 19:49:28', '2024-04-10 19:52:28');
+
+-- ----------------------------
+-- Table structure for `chatroom`
+-- ----------------------------
+DROP TABLE IF EXISTS `chatroom`;
+CREATE TABLE `chatroom` (
+  `id` int(11) NOT NULL,
+  `room_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `content` varchar(100) DEFAULT NULL,
+  `createtime` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of chatroom
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for `record`
@@ -66,7 +83,7 @@ CREATE TABLE `record` (
   `createtime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of record
@@ -112,6 +129,77 @@ INSERT INTO `record` VALUES ('38', '1', '11', '1', '2', '1', '12', '100000000011
 INSERT INTO `record` VALUES ('39', '1', '11', '1', '2', '1', '12', '00000000', '22222220', '11111111111111100000000000011000000010000111001000000001101010100001011000000010000110000111100001100001000000011010000101010110000000010011100001000000011000000000000111111111111111', 'all', '2023-03-01 11:24:19');
 INSERT INTO `record` VALUES ('40', '1', '11', '1', '2', '1', '12', '10000000000111111211011', '32212222222230000000000', '11111111111111100000000100011001100100001110000000000001100010000000011000001000000110011011011001100000010000011000000001000110000000000001110000100110011000100000000111111111111111', 'B', '2023-03-01 11:27:19');
 INSERT INTO `record` VALUES ('41', '1', '11', '1', '2', '1', '12', '0001000101', '2223030010', '11111111111111100000001000011000100000010111110000000001111000000000011000000000101110000000000001110100000000011000000000011110000000001111101000000100011000010000000111111111111111', 'B', '2023-03-01 12:06:50');
+INSERT INTO `record` VALUES ('42', '1', '11', '1', '2', '1', '12', '', '', '11111111111111100000010000011100000000000110100001000011100001001000111010000000000110000011000001100000000001011100010010000111000010000101100000000000111000001000000111111111111111', 'all', '2024-03-25 16:05:43');
+INSERT INTO `record` VALUES ('43', '1', '11', '1', '2', '1', '12', '', '', '11111111111111100001001000011010001110000110000000000001100000100000111000100000010110000000000001101000000100011100000100000110000000000001100001110001011000010010000111111111111111', 'B', '2024-03-25 16:06:05');
+INSERT INTO `record` VALUES ('44', '1', '11', '1', '2', '1', '12', '11112', '33332', '11111111111111100000000000011000000000011110000000000001110000000010011011110001010110000000000001101010001111011001000000001110000000000001111000000000011000000000000111111111111111', 'A', '2024-03-25 16:07:19');
+INSERT INTO `record` VALUES ('45', '1', '11', '1', '2', '1', '12', '', '', '11111111111111100000100001011100010000000110010000000001100000100101011000100000000110000100100001100000000100011010100100000110000000001001100000001000111010000100000111111111111111', 'all', '2024-03-31 14:32:44');
+INSERT INTO `record` VALUES ('46', '2', '11', '1', '1', '1', '12', '', '', '11111111111111100000000010011100000000001110100000010001100110010000111100000000000110000000000001100000000000111100001001100110001000000101110000000000111001000000000111111111111111', 'all', '2024-03-31 15:55:27');
+INSERT INTO `record` VALUES ('47', '1', '11', '1', '2', '1', '12', '', '', '11111111111111111001010000011010000000001110000000000001100000100000011001000010000111000000000011100001000010011000000100000110000000000001110000000001011000001010011111111111111111', 'all', '2024-04-03 15:33:18');
+INSERT INTO `record` VALUES ('48', '1', '11', '1', '2', '1', '12', '00000100000121221100011111122222300003222221212220', '23223332122112123330332223333300011110011122211223', '11111111111111100010000000011000010101000110000101010001100100000000011100001000000110000000000001100000010000111000000000100110001010100001100010101000011000000001000111111111111111', 'A', '2024-04-03 15:35:57');
+INSERT INTO `record` VALUES ('49', '2', '11', '1', '1', '1', '12', '001000000', '223003220', '11111111111111101000000000011001000000000111010000010001100000000010111100000000001111000000000011110000000000111101000000000110001000001011100000000010011000000000010111111111111111', 'B', '2024-04-03 15:36:31');
+INSERT INTO `record` VALUES ('50', '1', '11', '1', '2', '1', '12', '00010000100011111222122303000323001111121100', '22230030322122121232303322112112333303030001', '11111111111111100000000001011000100000000111100000000001110010100000011000001000001110010000001001110000010000011000000101001110000000000111100000000100011010000000000111111111111111', 'A', '2024-04-09 15:14:49');
+INSERT INTO `record` VALUES ('51', '1', '11', '1', '2', '1', '12', '', '', '11111111111111100000000100011000001000001110000110001101101000000100011000000000000110000100100001100000000000011000100000010110110001100001110000010000011000100000000111111111111111', 'A', '2024-04-10 19:31:07');
+INSERT INTO `record` VALUES ('52', '2', '11', '1', '1', '1', '12', '', '', '11111111111111101000000010011010010010000110000001000001100001001000011001000000010110000000000001101000000010011000010010000110000010000001100001001001011001000000010111111111111111', 'B', '2024-05-10 22:24:02');
+INSERT INTO `record` VALUES ('53', '2', '11', '1', '1', '1', '12', '0110100000010012', '2303223003223000', '11111111111111100000000000011001100000000110000000000111101001001011011000000100000110000000000001100000100000011011010010010111100000000001100000000110011000000000000111111111111111', 'B', '2024-05-10 22:24:25');
+INSERT INTO `record` VALUES ('54', '2', '11', '1', '1', '1', '12', '00', '20', '11111111111111100001000000011000100101010110000000000011100000000000011000100010001110100000000101110001000100011000000000000111000000000001101010100100011000000010000111111111111111', 'all', '2024-05-11 12:35:16');
+INSERT INTO `record` VALUES ('55', '1', '11', '1', '2', '1', '12', '010010000000121101111110', '230322121222303003001110', '11111111111111100001000000011100000000000110000000100011110001000000011000010010010110001000010001101001001000011000000010001111000100000001100000000000111000000010000111111111111111', 'all', '2024-05-11 13:08:06');
+INSERT INTO `record` VALUES ('56', '1', '11', '1', '2', '1', '12', '0000000000', '2222222223', '11111111111111110000010000011000000000000110000000000001100001000000011000110100000110111011011101100000101100011000000010000110000000000001100000000000011000001000001111111111111111', 'A', '2024-05-11 13:08:27');
+INSERT INTO `record` VALUES ('57', '2', '11', '1', '1', '1', '12', '0', '0', '11111111111111100000000100011000000000100110000000000101100110000010011010000000100110011000011001100100000001011001000001100110100000000001100100000000011000100000000111111111111111', 'B', '2024-05-11 13:12:31');
+INSERT INTO `record` VALUES ('58', '2', '11', '1', '1', '1', '12', '0', '0', '11111111111111100000000000011100000100010111000000100001110000001000111000001000000110000011000001100000010000011100010000001110000100000011101000100000111000000000000111111111111111', 'B', '2024-05-11 13:12:56');
+INSERT INTO `record` VALUES ('59', '1', '11', '1', '2', '1', '12', '0111101100000', '2222230300000', '11111111111111100000000101011100010100000111000000000001101001000001011100000000000110000000000001100000000000111010000010010110000000000011100000101000111010100000000111111111111111', 'B', '2024-05-11 13:13:20');
+INSERT INTO `record` VALUES ('60', '1', '11', '1', '2', '1', '12', '', '', '11111111111111100000000010011000000001000111000000000001100001000010011001000101100110100000000101100110100010011001000010000110000000000011100010000000011001000000000111111111111111', 'B', '2024-05-11 13:47:52');
+INSERT INTO `record` VALUES ('61', '1', '11', '1', '2', '1', '12', '0000000001101121101221221', '2222222223000000000122222', '11111111111111111000100000011000000001100110001000000001100000001010011000001000100110000000000001100100010000011001010000000110000000010001100110000000011000000100011111111111111111', 'A', '2024-05-11 13:54:31');
+INSERT INTO `record` VALUES ('62', '1', '11', '1', '2', '1', '12', '010000001100011211011112', '230322121223030303221210', '11111111111111100000010000011000000001000110110100000011100000010000011101000000000110000011000001100000000010111000001000000111000000101101100010000000011000001000000111111111111111', 'B', '2024-05-11 13:58:39');
+INSERT INTO `record` VALUES ('63', '2', '11', '1', '1', '1', '12', '00010101000010112210', '22232330333322111122', '11111111111111100010001000011100000010000110000000010001100000000000011001000110001110100000000101110001100010011000000000000110001000000001100001000000111000010001000111111111111111', 'A', '2024-05-11 14:10:14');
+INSERT INTO `record` VALUES ('64', '2', '11', '1', '1', '1', '12', '0000101000001', '2222300003220', '11111111111111100000000000011010001001000110001000010001100000000110011010001000000111000000000011100000010001011001100000000110001000010001100010010001011000000000000111111111111111', 'B', '2024-05-11 21:39:19');
+INSERT INTO `record` VALUES ('65', '2', '11', '1', '1', '1', '12', '', '', '11111111111111110000010000011101000101000110001010000001100000000000011000000000010110000100100001101000000000011000000000000110000001010001100010100010111000001000001111111111111111', 'all', '2024-05-18 08:22:52');
+INSERT INTO `record` VALUES ('66', '2', '11', '1', '1', '1', '12', '', '', '11111111111111100010000000011100000100000110001000000101111000000000111000010000000111000000000011100000001000011100000000011110100000010001100000100000111000000001000111111111111111', 'all', '2024-05-18 08:52:09');
+INSERT INTO `record` VALUES ('67', '1', '11', '1', '2', '1', '12', '', '', '11111111111111100000000000011010000000000111000100000111100011000000011000000000000111101000010111100000000000011000000011000111100000100011100000000001011000000000000111111111111111', 'all', '2024-05-18 08:56:03');
+INSERT INTO `record` VALUES ('68', '2', '11', '1', '1', '1', '12', '', '', '11111111111111110001000000011000001000100110000010010011101000000000011000001000000110010000001001100000010000011000000000010111001001000001100100010000011000000010001111111111111111', 'all', '2024-05-18 08:59:22');
+INSERT INTO `record` VALUES ('69', '2', '11', '1', '1', '1', '12', '0010100000010', '2230303222110', '11111111111111100101001001011000000000000110000000001001101000010000111000000010010110000000000001101001000000011100001000010110010000000001100000000000011010010010100111111111111111', 'B', '2024-05-18 09:00:42');
+INSERT INTO `record` VALUES ('70', '2', '11', '1', '1', '1', '12', '', '', '11111111111111100000000000011000000001100110100000000001100110000001111010000000100110100000000101100100000001011110000001100110000000000101100110000000011000000000000111111111111111', 'all', '2024-05-18 09:01:55');
+INSERT INTO `record` VALUES ('71', '1', '11', '1', '2', '1', '12', '', '', '11111111111111100100000000011000010000000110000101001011100000000100011010000000000110110000001101100000000001011000100000000111010010100001100000001000011000000000100111111111111111', 'all', '2024-05-18 09:16:03');
+INSERT INTO `record` VALUES ('72', '1', '11', '1', '2', '1', '12', '', '', '11111111111111100000000000011000001100010110000100001101100101100000011000000000000110000011000001100000000000011000000110100110110000100001101000110000011000000000000111111111111111', 'all', '2024-05-18 09:22:21');
+INSERT INTO `record` VALUES ('73', '2', '11', '1', '1', '1', '12', '10000001000011122211100100', '32212222222233000001000001', '11111111111111100000010100011010000100001110000001100001101000000000011000001000100110000000000001100100010000011000000000010110000110000001110000100001011000101000000111111111111111', 'A', '2024-05-18 09:24:06');
+INSERT INTO `record` VALUES ('74', '2', '11', '1', '1', '1', '12', '', '', '11111111111111100000000000011000000100000110101000100101100100100000011000000010000110010011001001100001000000011000000100100110100100010101100000100000011000000000000111111111111111', 'all', '2024-05-18 10:04:47');
+INSERT INTO `record` VALUES ('75', '2', '11', '1', '1', '1', '12', '', '', '11111111111111100000001000011001010000000110000000100101100000000000011000010010100110110000001101100101001000011000000000000110100100000001100000001010011000010000000111111111111111', 'all', '2024-05-18 10:12:43');
+INSERT INTO `record` VALUES ('76', '2', '11', '1', '1', '1', '12', '', '', '11111111111111100000000000011000000000100110010110000001110001110010011000100000000110000000000001100000000100011001001110001110000001101001100100000000011000000000000111111111111111', 'all', '2024-05-18 10:17:32');
+INSERT INTO `record` VALUES ('77', '2', '11', '1', '1', '1', '12', '', '', '11111111111111100000000010011100010100000110110000000001100000100000011001000000000110100100100101100000000010011000000100000110000000001101100000101000111001000000000111111111111111', 'all', '2024-05-18 10:19:15');
+INSERT INTO `record` VALUES ('78', '2', '11', '1', '1', '1', '12', '100000300000111111111110', '322122222222303000300000', '11111111111111100000000000011000001000001110100011000001100000000000011010010100100110010000001001100100101001011000000000000110000011000101110000010000011000000000000111111111111111', 'A', '2024-05-18 10:22:29');
+INSERT INTO `record` VALUES ('79', '2', '11', '1', '1', '1', '12', '000', '220', '11111111111111110000000100011010000001000110000000000101100000000000111000000001000110110100101101100010000000011100000000000110100000000001100010000001011000100000001111111111111111', 'all', '2024-05-18 16:23:42');
+INSERT INTO `record` VALUES ('80', '2', '11', '1', '1', '1', '12', '', '', '11111111111111101011001000011000010010000110110000000001100000000000011010000000000110000011000001100000000001011000000000000110000000001101100001001000011000010011010111111111111111', 'all', '2024-05-18 16:49:49');
+INSERT INTO `record` VALUES ('81', '2', '11', '1', '1', '1', '12', '', '', '11111111111111101000001000011000000000000110000000000001100000000000111101100000000111001111110011100000000110111100000000000110000000000001100000000000011000010000010111111111111111', 'all', '2024-05-18 16:51:52');
+INSERT INTO `record` VALUES ('82', '2', '11', '1', '1', '1', '12', '000001003000', '222223000001', '11111111111111100010010000011000000001000110100001000001100100010000011100000100100110000000000001100100100000111000001000100110000010000101100010000000011000001001000111111111111111', 'all', '2024-05-18 16:55:21');
+
+-- ----------------------------
+-- Table structure for `relationship`
+-- ----------------------------
+DROP TABLE IF EXISTS `relationship`;
+CREATE TABLE `relationship` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `friend_id` int(11) DEFAULT NULL,
+  `status` varchar(11) DEFAULT NULL,
+  `createtime` datetime DEFAULT NULL,
+  `updatetime` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of relationship
+-- ----------------------------
+INSERT INTO `relationship` VALUES ('18', '1', '2', '已是好友', '2024-05-16 20:23:31', '2024-05-16 20:23:37');
+INSERT INTO `relationship` VALUES ('19', '2', '1', '已是好友', '2024-05-16 20:23:37', '2024-05-16 20:23:37');
+INSERT INTO `relationship` VALUES ('20', '3', '1', '已是好友', '2024-05-18 10:41:06', '2024-05-18 14:43:52');
+INSERT INTO `relationship` VALUES ('21', '1', '3', '已是好友', '2024-05-18 14:43:52', '2024-05-18 14:43:52');
+INSERT INTO `relationship` VALUES ('22', '4', '1', '已是好友', '2024-05-18 14:45:05', '2024-05-18 15:15:00');
+INSERT INTO `relationship` VALUES ('24', '5', '1', '已是好友', '2024-05-18 15:14:41', '2024-05-18 15:15:04');
+INSERT INTO `relationship` VALUES ('25', '1', '4', '已是好友', '2024-05-18 15:15:00', '2024-05-18 15:15:00');
+INSERT INTO `relationship` VALUES ('26', '1', '5', '已是好友', '2024-05-18 15:15:04', '2024-05-18 15:15:04');
+INSERT INTO `relationship` VALUES ('27', '6', '1', '已是好友', '2024-05-18 15:24:26', '2024-05-18 15:24:55');
+INSERT INTO `relationship` VALUES ('28', '7', '1', '已是好友', '2024-05-18 15:24:42', '2024-05-18 15:30:59');
+INSERT INTO `relationship` VALUES ('29', '1', '6', '已是好友', '2024-05-18 15:24:55', '2024-05-18 15:24:55');
+INSERT INTO `relationship` VALUES ('30', '1', '7', '已是好友', '2024-05-18 15:30:59', '2024-05-18 15:30:59');
 
 -- ----------------------------
 -- Table structure for `user`
@@ -126,15 +214,21 @@ CREATE TABLE `user` (
   `openid` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES ('1', 'qly', '$2a$10$1jNSjJwv1ZnnCKaYWvxWB.wcjBKDu8dVRVSoLamXkAgGs6tEqJPbK', 'https://cdn.acwing.com/media/user/profile/photo/150655_lg_8d32256772.jpg', '1517', null);
-INSERT INTO `user` VALUES ('2', 'qly2', '$2a$10$AGOnk3e4XVikHK9Jh.F2V.7mDHE6n28l/C5p7D94aQo8oYzdUPUy6', 'https://cdn.acwing.com/media/user/profile/photo/1_lg_844c66b332.jpg', '1495', null);
+INSERT INTO `user` VALUES ('1', 'qly', '$2a$10$1jNSjJwv1ZnnCKaYWvxWB.wcjBKDu8dVRVSoLamXkAgGs6tEqJPbK', 'https://cdn.acwing.com/media/user/profile/photo/150655_lg_8d32256772.jpg', '1524', null);
+INSERT INTO `user` VALUES ('2', 'qly2', '$2a$10$AGOnk3e4XVikHK9Jh.F2V.7mDHE6n28l/C5p7D94aQo8oYzdUPUy6', 'https://img.touxiangwu.com/uploads/allimg/240412/1_04120Q45R128.jpg', '1544', null);
 INSERT INTO `user` VALUES ('3', 'qly3', '$2a$10$UdhFY3tz4UL880qSt3cuI.o3lFjVbjV.l1o/JDHGmYoL22F1BX/yy', 'https://cdn.acwing.com/media/user/profile/photo/150655_lg_8d32256772.jpg', '1500', null);
 INSERT INTO `user` VALUES ('4', 'qly4', '$2a$10$GXTRWr5EnDy6ofpac.2pHe5R28PuVeo8RKKkfA9.BG.HnV1mW1CBO', 'https://cdn.acwing.com/media/user/profile/photo/150655_lg_8d32256772.jpg', '1500', null);
 INSERT INTO `user` VALUES ('5', 'qly5', '$2a$10$Ni87RPc7eWaj/yVYUiNwgulFwLWU2I6.N8.4PTxD2kbA1vIqJrRx6', 'https://cdn.acwing.com/media/user/profile/photo/150655_lg_8d32256772.jpg', '1500', null);
 INSERT INTO `user` VALUES ('6', 'qly6', '$2a$10$rKuprTcvMpkpwN3xSKIvSO6X3W0vFx7RczUtq/6YaBQFju8fdl8Uq', 'https://cdn.acwing.com/media/user/profile/photo/150655_lg_8d32256772.jpg', '1500', null);
 INSERT INTO `user` VALUES ('7', 'qly7', '$2a$10$sk63Afmv0sjmdPKbAf8IhecrBUDmuRdUAR.17tfoCiDdTnIYzwtzq', 'https://cdn.acwing.com/media/user/profile/photo/150655_lg_8d32256772.jpg', '1500', null);
+INSERT INTO `user` VALUES ('8', 'qly10', '$2a$10$s9yOBn0ZeOlCV3QqowngcOROO18A2UbMIB7c8DDWFd1KnKZaZQyli', 'https://cdn.acwing.com/media/user/profile/photo/1_lg_844c66b332.jpg', '1500', null);
+INSERT INTO `user` VALUES ('9', 'qly11', '$2a$10$6weuZzNXOXV/9.2igxG6qOJ214HMn2F4jKAlypQPzworwotvuVvcC', 'https://cdn.acwing.com/media/user/profile/photo/1_lg_844c66b332.jpg', '1500', null);
+INSERT INTO `user` VALUES ('10', 'qly12', '$2a$10$Hmn2Q2tqjMQ1ZjAiiVp8DujM8r7.slSW8VKOIkerlQeeuNy/kHdaK', 'https://cdn.acwing.com/media/user/profile/photo/1_lg_844c66b332.jpg', '1500', null);
+INSERT INTO `user` VALUES ('11', 'qly71', '$2a$10$H.dNXf/QDyNPenIrpqOrsuFzrM5.FSz4cwQ4gcdOzZlKsMkVVD9wy', 'https://cdn.acwing.com/media/user/profile/photo/1_lg_844c66b332.jpg', '1500', null);
+INSERT INTO `user` VALUES ('12', 'qly123', '$2a$10$lWu6ZBaK2aVPfXapRMuI8eWGRoXxqXo0Abm8rECOqdQRX37zvmLYi', 'https://cdn.acwing.com/media/user/profile/photo/150655_lg_8d32256772.jpg', '1500', null);
+INSERT INTO `user` VALUES ('13', 'qly789', '$2a$10$IIkANN.sZE2yiXuXCA1lr.n1MCh4XT10/EFpvF25vKKNWzR7.3XZK', 'https://www.loliapi.com/acg/pp/', '1500', null);

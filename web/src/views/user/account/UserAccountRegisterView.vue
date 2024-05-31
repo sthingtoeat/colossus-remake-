@@ -38,8 +38,11 @@ export default {
         let password = ref('');
         let confirmedPassword = ref('');
         let error_message = ref('');
+        let photo = ref('');
 
         const register = () => {
+            //先给photo这个变量赋值，内容为头像的地址
+            // getAvatar();
             $.ajax({
                 url: "http://127.0.0.1:3000/api/user/account/register/",
                 type: "post",
@@ -47,6 +50,7 @@ export default {
                     username: username.value,
                     password: password.value,
                     confirmedPassword: confirmedPassword.value,
+                    photo:photo.value,
                 },
                 success(resp) {
                     if (resp.error_message === "success") {
@@ -57,6 +61,22 @@ export default {
                 },
             });
         }
+        //获取随机头像,暂时先不用，json好像处理不好，
+        const getAvatar = () =>{
+            // $.ajax({
+            //   url:"https://api.vvhan.com/api/avatar/dm?type=json",
+            //   type:"get",
+            //   dataType:"json",
+            //   success(resp){
+            //     // let msg = JSON.parse(resp.url);
+            //     photo.value = resp.url;
+            //   },
+            //   error(){
+            //     console.log("随机头像请求失败");
+            //     photo.value = "";
+            //   }
+            // })
+        }
 
         return {
             username,
@@ -64,6 +84,7 @@ export default {
             confirmedPassword,
             error_message,
             register,
+            getAvatar,
         }
     }
 }

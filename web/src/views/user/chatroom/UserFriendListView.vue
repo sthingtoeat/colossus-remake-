@@ -452,6 +452,8 @@ export default {
           friendName:friendName.value,
         },
         success(resp){ 
+          //清空列表再进行添加
+          friend_search_list.length = 0;
           for(let i = 0 ; i < resp.length ; i ++){
             friend_search_list.push({
               username:resp[i].username,
@@ -542,8 +544,6 @@ export default {
           console.log(resp);
         }
       })
-
-      
     }
     //在好友列表时，实时接收后端发来的好友请求
     const searchFriendRequestOnline = () =>{

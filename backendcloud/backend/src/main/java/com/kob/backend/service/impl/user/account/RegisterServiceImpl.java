@@ -21,7 +21,7 @@ public class RegisterServiceImpl implements RegisterService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public Map<String, String> register(String username, String password, String confirmedPassword) {
+    public Map<String, String> register(String username, String password, String confirmedPassword ,String photo) {
         Map<String, String> map = new HashMap<>();
         if (username == null) {
             map.put("error_message", "用户名不能为空");
@@ -67,7 +67,12 @@ public class RegisterServiceImpl implements RegisterService {
         }
 
         String encodedPassword = passwordEncoder.encode(password);
-        String photo = "https://cdn.acwing.com/media/user/profile/photo/150655_sm_8d32256772.jpg";
+
+        System.out.println(photo);
+        if(photo.isEmpty()){
+            photo = "https://cdn.acwing.com/media/user/profile/photo/150655_sm_8d32256772.jpg";
+        }
+
         User user = new User(null, username, encodedPassword, photo, 1500);
         userMapper.insert(user);
 
