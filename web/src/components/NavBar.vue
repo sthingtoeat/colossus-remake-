@@ -19,6 +19,9 @@
         <li class="nav-item">
           <router-link :class="route_name == 'friendlist' ? 'nav-link active' : 'nav-link'" :to="{name: 'friendlist'}">好友列表</router-link>
         </li>
+        <li class="nav-item">
+          <router-link :class="route_name == 'games' ? 'nav-link active' : 'nav-link'" :to="{name: 'games'}">小游戏</router-link>
+        </li>
       </ul>
       <ul class="navbar-nav" v-if="$store.state.user.is_login">
         <li class="nav-item dropdown">

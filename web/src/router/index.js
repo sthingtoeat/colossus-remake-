@@ -9,6 +9,8 @@ import UserAccountLoginView from '../views/user/account/UserAccountLoginView'
 import UserAccountRegisterView from '../views/user/account/UserAccountRegisterView'
 import UserChatRoomView from '../views/user/chatroom/UserChatRoomView'
 import UserFriendListView from '../views/user/chatroom/UserFriendListView'
+import GameListIndexView from '../views/games/GameListIndexView'
+import Mota from '../views/games/MotaView'
 import store from '../store/index'
 
 const routes = [
@@ -100,11 +102,27 @@ const routes = [
       requestAuth:true,
     }
   },
-  
   {
-    path: "/:catchAll(.*)",
-    redirect: "/404/"
-  }
+    path:"/games",
+    name:"games",
+    component:GameListIndexView,
+    meta:{
+      requestAuth:true,
+    }
+  },
+  {
+    path:"/games/mota",
+    name:"mota",
+    component:Mota,
+    meta:{
+      requestAuth:false,
+    }
+  },
+
+  // {
+  //   path: "/:catchAll(.*)",
+  //   redirect: "/404/"
+  // }
 ]
 
 const router = createRouter({
